@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Mess Finder - Find Quality Mess Services</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="register.html" id="registerLink">Register</a></li>
+                <li><a href="admin-login.html" id="adminLoginLink">Admin</a></li>
+                <li><a href="#" id="dashboardLink" style="display:none;">Dashboard</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Login/Register Buttons -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Find the Perfect Hostel Mess</h2>
+                <p>Read verified student reviews | Compare quality, price, and hygiene | Make informed decisions</p>
+                
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 30px;">
+                    <a href="login.html" class="btn btn-success btn-lg" style="background-color: #28a745; min-width: 150px; text-align: center;">
+                        🔐 Login
+                    </a>
+                    <a href="register.html" class="btn btn-danger btn-lg" style="background-color: #dc3545; min-width: 150px; text-align: center;">
+                        ✍️ Register
+                    </a>
+                    <a href="admin-login.html" class="btn btn-info btn-lg" style="background-color: #17a2b8; min-width: 150px; text-align: center;">
+                        👨‍💼 Admin Login
+                    </a>
+                </div>
+                
+                <button id="exploreMesses" class="btn btn-box btn-lg" onclick="handleExploreMesses()" style="margin-top: 20px;">Explore Messes</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Hostel Mess Finder?</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✓</div>
+                    <h3>Verified Student Reviews</h3>
+                    <p>Only authenticated students can submit reviews, ensuring genuine feedback from real users.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <h3>Photo Proof Reviews</h3>
+                    <p>Students upload food images as proof before reviewing - see real pictures of meals!</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Detailed Filters</h3>
+                    <p>Search by food type, price range, hygiene rating, and location. Find exactly what you need.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Comprehensive Ratings</h3>
+                    <p>Separate ratings for food quality, hygiene, and overall experience with quantity tracking.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Real-time Updates</h3>
+                    <p>Fresh reviews and ratings posted constantly. Stay updated with the latest feedback from students.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Safe & Secure</h3>
+                    <p>Your data is protected with encryption. Trust our secure platform for honest reviews and comparisons.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Sign Up</h3>
+                    <p>Create your account as a student or mess owner. Quick and easy registration process.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Browse & Search</h3>
+                    <p>Explore available messes in your area using advanced filters and search options.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Read Reviews</h3>
+                    <p>Check verified student reviews, ratings, and photos to make informed decisions.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Leave Feedback</h3>
+                    <p>Share your experience with photos and help other students make better choices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat">
+                    <h3 id="messCount">150+</h3>
+                    <p>Registered Messes</p>
+                </div>
+                
+                <div class="stat">
+                    <h3 id="reviewCount">5000+</h3>
+                    <p>Student Reviews</p>
+                </div>
+                
+                <div class="stat">
+                    <h3 id="studentCount">12000+</h3>
+                    <p>Active Students</p>
+                </div>
+                
+                <div class="stat">
+                    <h3>24/7</h3>
+                    <p>Support Available</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Find Your Perfect Mess?</h2>
+            <p>Join thousands of students making smarter food choices</p>
+            <button id="getStartedBtn" class="btn btn-primary" onclick="handleExploreMesses()">Get Started Now</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function handleExploreMesses() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+            } else {
+                window.location.href = 'messes.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Messes - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .compare-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .compare-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .compare-table-wrapper {
+            overflow-x: auto;
+            margin: 30px 0;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .compare-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .compare-table th, .compare-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .compare-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .compare-table .feature-name {
+            font-weight: 600;
+            min-width: 150px;
+            background: #f5f5f5;
+        }
+
+        .mess-column {
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .mess-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .mess-price {
+            font-size: 1.4rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .mess-rating {
+            font-size: 1.1rem;
+            color: #ffc107;
+        }
+
+        .rating-badge {
+            display: inline-block;
+            background: #ffc107;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin: 5px 0;
+        }
+
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .remove-btn:hover {
+            background: #ff5252;
+        }
+
+        .schedule-item {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .schedule-item strong {
+            color: #667eea;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn-back {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        .btn-back:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 768px) {
+            .compare-table-wrapper {
+                overflow-x: scroll;
+            }
+
+            .compare-table th, .compare-table td {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            .mess-column {
+                min-width: 200px;
+            }
+
+            .compare-container {
+                margin: 20px 10px;
+                padding: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-back {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+
+        .no-comparison {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .no-comparison h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .no-comparison p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .no-comparison a {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .no-comparison a:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="register.html" id="registerLink">Register</a></li>
+                <li><a href="dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="compare-container">
+        <div class="compare-header">
+            <h2>Compare Messes</h2>
+            <p>Side-by-side comparison of your selected messes</p>
+        </div>
+
+        <div id="comparisonContent">
+            <!-- Comparison content will be loaded here -->
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-back" onclick="goBackToBrowse()">← Back to Browse</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        let comparedMesses = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadComparisonData();
+            renderComparison();
+        });
+
+        function loadComparisonData() {
+            try {
+                const messIds = JSON.parse(sessionStorage.getItem('comparedMesses') || '[]');
+                console.log('Loaded mess IDs:', messIds);
+                
+                // Fetch the mess details from API
+                fetch(`${API_BASE_URL}/messes`, {
+                    headers: getAuthHeaders()
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const allMesses = data.data || [];
+                    comparedMesses = messIds
+                        .map(id => allMesses.find(m => m._id === id))
+                        .filter(m => m);
+                    renderComparison();
+                })
+                .catch(e => console.error('Error loading messes:', e));
+            } catch (e) {
+                console.error('Error loading comparison data:', e);
+            }
+        }
+
+        function renderComparison() {
+            const content = document.getElementById('comparisonContent');
+
+            if (comparedMesses.length < 2) {
+                content.innerHTML = `
+                    <div class="no-comparison">
+                        <h2>No Comparison Available</h2>
+                        <p>Select at least 2 messes from the browse page to compare.</p>
+                        <a href="messes.html">Browse Messes</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Build comparison table
+            const tableHtml = `
+                <div class="compare-table-wrapper">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                ${comparedMesses.map(mess => `
+                                    <th class="mess-column">
+                                        <div class="mess-name">${mess.name}</div>
+                                        <button class="remove-btn" onclick="removeFromComparison('${mess._id}')">Remove ✕</button>
+                                    </th>
+                                `).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="feature-name">Monthly Price</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column mess-price">₹${mess.monthlyPrice}</td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Food Type</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">${mess.foodType}</td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Location</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">${mess.location}</td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Overall Rating</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column mess-rating">
+                                        <div class="rating-badge">★ ${(mess.overallRating || 0).toFixed(1)}</div>
+                                    </td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Total Reviews</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">${mess.totalReviews || 0}</td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Meal Schedule</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">
+                                        ${renderSchedule(mess.foodSchedule)}
+                                    </td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Facilities</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">
+                                        ${mess.facilities && mess.facilities.length > 0 
+                                            ? mess.facilities.join(', ')
+                                            : 'Not specified'
+                                        }
+                                    </td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Address</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">${mess.address}</td>
+                                `).join('')}
+                            </tr>
+                            <tr>
+                                <td class="feature-name">Action</td>
+                                ${comparedMesses.map(mess => `
+                                    <td class="mess-column">
+                                        <button class="btn btn-primary" onclick="goToMessDetails('${mess._id}')">
+                                            View Details
+                                        </button>
+                                    </td>
+                                `).join('')}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            content.innerHTML = tableHtml;
+        }
+
+        function renderSchedule(schedule) {
+            if (!schedule) return '<span style="color: #999;">Not available</span>';
+
+            let html = '';
+            const meals = ['breakfast', 'lunch', 'dinner', 'snacks'];
+            
+            for (const meal of meals) {
+                const mealData = schedule[meal];
+                if (mealData && mealData.available) {
+                    html += `
+                        <div class="schedule-item">
+                            <strong>${meal.charAt(0).toUpperCase() + meal.slice(1)}:</strong> ${mealData.time}
+                        </div>
+                    `;
+                }
+            }
+
+            return html || '<span style="color: #999;">No schedule available</span>';
+        }
+
+        function removeFromComparison(messId) {
+            try {
+                let messIds = JSON.parse(sessionStorage.getItem('comparedMesses') || '[]');
+                messIds = messIds.filter(id => id !== messId);
+                sessionStorage.setItem('comparedMesses', JSON.stringify(messIds));
+                
+                comparedMesses = comparedMesses.filter(m => m._id !== messId);
+                renderComparison();
+                
+                if (typeof showSuccessMessage === 'function') {
+                    showSuccessMessage('Mess removed from comparison');
+                }
+            } catch (e) {
+                console.error('Error removing mess:', e);
+            }
+        }
+
+        function goToMessDetails(messId) {
+            window.location.href = `mess-details.html?id=${messId}`;
+        }
+
+        function goBackToBrowse() {
+            window.location.href = 'messes.html';
+        }
+    </script>
+</body>
+</html>

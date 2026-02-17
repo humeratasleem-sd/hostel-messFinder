@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .login-type-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .login-type-btn {
+            padding: 15px 25px;
+            border: 2px solid #333;
+            background: #1a1a1a;
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .login-type-btn:hover {
+            border-color: #FF6B6B;
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+        }
+
+        .login-type-btn.active {
+            background: #FF6B6B;
+            color: white;
+            border-color: #FF6B6B;
+        }
+
+        .login-type-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .login-form-container {
+            display: none;
+        }
+
+        .login-form-container.active {
+            display: block;
+        }
+
+        .login-benefits {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            border: 1px solid #333;
+            color: #b0b0b0;
+        }
+
+        .login-benefits h4 {
+            color: #FF6B6B;
+        }
+
+        .login-benefits h4:hover {
+            color: #4ecdc4 !important;
+        }
+
+        .login-benefits ul {
+            color: #b0b0b0;
+        }
+
+        .login-benefits li:hover {
+            color: #FF6B6B;
+        }
+
+        .auth-container {
+            padding: 40px 20px;
+            min-height: calc(100vh - 80px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+                <li><a href="register.html">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="auth-container">
+        <div class="auth-form-wrapper" style="grid-template-columns: 1fr;">
+            <div class="auth-form">
+                <h2>Welcome to Hostel Mess Finder</h2>
+                <p class="subtitle">Login to your account</p>
+
+                <!-- Unified Login Form -->
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    </div>
+
+                    <div id="errorMessage" class="error-message"></div>
+                    <div id="successMessage" class="success-message"></div>
+
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Login</button>
+                </form>
+
+                <p class="auth-link">Don't have an account? <a href="register.html">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+
+            // Clear messages
+            errorDiv.innerHTML = '';
+            successDiv.innerHTML = '';
+
+            if (!email || !password) {
+                errorDiv.innerHTML = 'Email and password are required';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userType', data.user.role);
+                    localStorage.removeItem('browseMode');
+                    
+                    successDiv.innerHTML = 'Login successful! Redirecting...';
+                    
+                    // Redirect based on user role returned from server
+                    const role = data.user.role;
+                    setTimeout(() => {
+                        if (role === 'admin') {
+                            window.location.href = 'admin-dashboard.html';
+                        } else if (role === 'hostel_owner') {
+                            window.location.href = 'owner-dashboard.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    errorDiv.innerHTML = data.message || 'Login failed';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.innerHTML = '❌ Failed to connect to server. Please make sure the backend is running on port 5000.';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Details - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .mess-details-wrapper {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .mess-details-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mess-details-right {
+            flex: 0 0 450px;
+            position: sticky;
+            top: 90px;
+            height: fit-content;
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-card h2, .info-card h3 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-table td {
+            padding: 12px 8px;
+        }
+
+        .info-table td:first-child {
+            font-weight: 600;
+            color: var(--text-color);
+            width: 140px;
+        }
+
+        .info-table td:last-child {
+            color: var(--text-light);
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .rating-stars {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        .rating-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .rating-count {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .rating-breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 12px 0;
+        }
+
+        .rating-breakdown-label {
+            min-width: 110px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .rating-progress {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .rating-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .rating-value {
+            min-width: 45px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .review-form-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .review-form-card h3 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .star-rating .star {
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+        .star-rating .star.active,
+        .star-rating .star:hover {
+            color: #ffd700;
+        }
+
+        .reviews-list-section {
+            margin-top: 30px;
+        }
+
+        .review-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .review-date {
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .review-rating {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .review-text {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .review-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .quantity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        @media (max-width: 968px) {
+            .mess-details-wrapper {
+                flex-direction: column;
+            }
+
+            .mess-details-right {
+                flex: 1;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="register.html" id="registerLink">Register</a></li>
+                <li><a href="admin-login.html" id="adminLoginLink">Admin</a></li>
+                <li><a href="dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Mess Details -->
+    <div class="container">
+        <div class="back-link" style="padding: 20px 0;">
+            <a href="messes.html" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">← Back to Messes</a>
+        </div>
+
+        <div class="mess-details-wrapper">
+            <!-- LEFT SIDE: Mess Information -->
+            <div class="mess-details-left">
+                <!-- Basic Info Card -->
+                <div class="info-card">
+                    <h2 id="messName">Loading...</h2>
+                    
+                    <div class="rating-display">
+                        <span class="rating-number" id="overallRatingNum">0.0</span>
+                        <div>
+                            <div class="rating-stars" id="messRating">★★★★★</div>
+                            <div class="rating-count" id="reviewCount">0 reviews</div>
+                        </div>
+                    </div>
+
+                    <table class="info-table">
+                        <tr>
+                            <td>📍 Location</td>
+                            <td id="messLocation">-</td>
+                        </tr>
+                        <tr>
+                            <td>💰 Monthly Price</td>
+                            <td>₹<span id="messPrice">-</span></td>
+                        </tr>
+                        <tr>
+                            <td>🍽️ Food Type</td>
+                            <td id="messFoodType">-</td>
+                        </tr>
+                        <tr>
+                            <td>📞 Phone</td>
+                            <td id="messPhone">-</td>
+                        </tr>
+                        <tr>
+                            <td>🌐 Website</td>
+                            <td id="messWebsite">-</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Ratings Breakdown Card -->
+                <div class="info-card">
+                    <h3>Detailed Ratings</h3>
+                    
+                    <div class="rating-breakdown-item">
+                        <span class="rating-breakdown-label">Food Quality</span>
+                        <div class="rating-progress">
+                            <div class="rating-progress-fill" id="foodQualityBar" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-value" id="foodQualityRating">0/5</span>
+                    </div>
+
+                    <div class="rating-breakdown-item">
+                        <span class="rating-breakdown-label">Hygiene</span>
+                        <div class="rating-progress">
+                            <div class="rating-progress-fill" id="hygieneBar" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-value" id="hygieneRating">0/5</span>
+                    </div>
+                </div>
+
+                <!-- Description Card -->
+                <div class="info-card">
+                    <h3>About This Mess</h3>
+                    <p id="messDescription" style="color: var(--text-light); line-height: 1.6;">No description available</p>
+                </div>
+
+                <!-- Meal Schedule Card -->
+                <div class="info-card">
+                    <h3>🍽️ Meal Schedule</h3>
+                    <table class="info-table" id="mealScheduleTable">
+                        <tr>
+                            <td>Meal</td>
+                            <td>Available</td>
+                            <td>Time</td>
+                            <td>Details</td>
+                        </tr>
+                        <tr>
+                            <td>Breakfast</td>
+                            <td id="scheduleBreakfastAvailable">-</td>
+                            <td id="scheduleBreakfastTime">-</td>
+                            <td id="scheduleBreakfastDesc">-</td>
+                        </tr>
+                        <tr>
+                            <td>Lunch</td>
+                            <td id="scheduleLunchAvailable">-</td>
+                            <td id="scheduleLunchTime">-</td>
+                            <td id="scheduleLunchDesc">-</td>
+                        </tr>
+                        <tr>
+                            <td>Dinner</td>
+                            <td id="scheduleDinnerAvailable">-</td>
+                            <td id="scheduleDinnerTime">-</td>
+                            <td id="scheduleDinnerDesc">-</td>
+                        </tr>
+                        <tr>
+                            <td>Snacks</td>
+                            <td id="scheduleSnacksAvailable">-</td>
+                            <td id="scheduleSnacksTime">-</td>
+                            <td id="scheduleSnacksDesc">-</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Reviews List -->
+                <div class="reviews-list-section">
+                    <div class="info-card">
+                        <h3>Student Reviews</h3>
+                        <div id="reviewsContainer">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                        <div id="noReviewsMessage" style="display:none; text-align: center; padding: 30px; color: var(--text-light);">
+                            <p>No reviews yet. Be the first to review!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Join Button & Review Form -->
+            <div class="mess-details-right">
+                <!-- Join Mess Card -->
+                <div class="info-card" id="joinMessContainer" style="display:none; background: linear-gradient(135deg, #28a745, #20c997); border: none; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);">
+                    <h3 style="color: white; margin-bottom: 15px; font-size: 1.3rem;">✨ Join This Mess</h3>
+                    <p style="color: rgba(255,255,255,0.95); margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5;">
+                        Connect directly with the hostel owner and join the community.
+                    </p>
+                    <button id="joinButton" class="btn btn-success btn-lg btn-block" style="margin-bottom: 10px; background-color: white; color: #28a745; font-weight: 600; border: none; font-size: 1rem;">
+                        ✓ Join Now
+                    </button>
+                    <button id="leaveButton" class="btn btn-danger btn-lg btn-block" style="display:none; background-color: #dc3545; color: white; font-weight: 600; border: none; font-size: 1rem;">
+                        🚪 Leave This Mess
+                    </button>
+                </div>
+
+                <!-- Owner Details Card - Shows after joining -->
+                <div class="info-card" id="ownerDetailsCard" style="display:none; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border: none; box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);">
+                    <h3 style="color: white; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.3); font-size: 1.2rem;">👤 Hostel Owner Details</h3>
+                    
+                    <div style="margin-bottom: 18px;">
+                        <p style="color: rgba(255,255,255,0.8); margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; font-weight: 500;">Owner Name</p>
+                        <p id="ownerNameDisplay" style="color: white; font-size: 1.2rem; margin: 0; font-weight: 600;">-</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <p style="color: rgba(255,255,255,0.8); margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; font-weight: 500;">📧 Email</p>
+                        <p id="ownerEmailDisplay" style="color: #ffeb3b; font-size: 1rem; margin: 0; word-break: break-all; font-weight: 500;">-</p>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <p style="color: rgba(255,255,255,0.8); margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; font-weight: 500;">📱 Phone</p>
+                        <p id="ownerPhoneDisplay" style="color: #ffeb3b; font-size: 1rem; margin: 0; font-weight: 500;">-</p>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px;">
+                        <p style="color: rgba(255,255,255,0.8); margin: 0 0 8px 0; font-size: 0.9rem; text-transform: uppercase; font-weight: 500;">Mess Name</p>
+                        <p id="messNameDisplay" style="color: white; font-size: 1.1rem; margin: 0; font-weight: 600;">-</p>
+                    </div>
+                </div>
+
+                <div class="review-form-card" id="reviewFormContainer" style="display:none;">
+                    <h3>Write a Review</h3>
+                    <form id="reviewForm">
+                        <div class="form-group">
+                            <label>Overall Rating *</label>
+                            <div class="star-rating" id="mainRating">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <input type="hidden" id="ratingInput" value="0" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Food Quality *</label>
+                            <div class="star-rating" id="foodRating">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <input type="hidden" id="foodRatingInput" value="0" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hygiene Rating *</label>
+                            <div class="star-rating" id="hygieneRatingForm">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                            </div>
+                            <input type="hidden" id="hygieneRatingInput" value="0" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantitySelect">Food Quantity *</label>
+                            <select id="quantitySelect" required>
+                                <option value="">Select quantity...</option>
+                                <option value="limited">📦 Limited</option>
+                                <option value="unlimited">♾️ Unlimited</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reviewText">Your Review *</label>
+                            <textarea id="reviewText" placeholder="Share your experience..." required maxlength="1000"></textarea>
+                            <small id="charCount">0/1000 characters</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="foodImage">Upload Food Photo</label>
+                            <input type="file" id="foodImage" accept="image/*">
+                            <small>Optional - Share a photo of the food</small>
+                            <div id="imagePreviewContainer" style="margin-top: 10px; display: none;">
+                                <img id="imagePreview" style="max-width: 100%; border-radius: 8px; border: 2px solid var(--border-color);">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="voiceNote">Upload Voice Note</label>
+                            <input type="file" id="voiceNote" accept="audio/*">
+                            <small>Optional - Share a short voice note</small>
+                            <div id="voicePreviewContainer" style="margin-top: 10px; display: none;">
+                                <audio id="voicePreview" controls style="width: 100%;"></audio>
+                            </div>
+                        </div>
+                        <div id="reviewErrorMessage" class="error-message" style="color: var(--danger-color); margin-bottom: 10px;"></div>
+
+                        <button type="submit" class="btn btn-success btn-lg btn-block">Submit Review</button>
+                    </form>
+                </div>
+
+                <div id="loginPrompt" style="display:none;">
+                    <div class="review-form-card" style="text-align: center; padding: 40px 25px;">
+                        <h3 style="margin-bottom: 15px;">Share Your Experience</h3>
+                        <p style="color: var(--text-light); margin-bottom: 20px;">Please login to write a review</p>
+                        <a href="login.html" class="btn btn-success btn-lg">Login Now</a>
+                    </div>
+                </div>
+
+                <div id="reviewModeNotice" style="display:none;">
+                    <div class="review-form-card" style="text-align: center; padding: 30px 25px;">
+                        <h3 style="margin-bottom: 10px;">Reviews Disabled</h3>
+                        <p style="color: var(--text-light);">You chose to search a new mess, so posting reviews is disabled here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Confirmation Modal -->
+    <div id="joinConfirmationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-secondary); border-radius:15px; padding:30px; max-width:550px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+            <div style="text-align:center; margin-bottom:25px;">
+                <h2 style="color:var(--text-color); margin:0 0 15px 0; font-size:1.4rem;">👤 Hostel Owner Details</h2>
+                <p style="color:var(--text-light); margin:0;">Please review the owner details before confirming</p>
+            </div>
+            
+            <!-- Owner Details Display -->
+            <div style="background:var(--bg-color); padding:20px; border-radius:10px; margin-bottom:20px; border-left:4px solid var(--primary-color);">
+                <div style="margin-bottom:18px;">
+                    <p style="color:var(--text-light); margin:0 0 8px 0; font-size:0.9rem; text-transform:uppercase; font-weight:500;">Owner Name</p>
+                    <p id="confirmOwnerName" style="color:var(--text-color); font-size:1.2rem; margin:0; font-weight:600;">-</p>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <p style="color:var(--text-light); margin:0 0 8px 0; font-size:0.9rem; text-transform:uppercase; font-weight:500;">📧 Email Address</p>
+                    <p id="confirmOwnerEmail" style="color:var(--primary-color); font-size:1rem; margin:0; word-break:break-all; font-weight:500;">-</p>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <p style="color:var(--text-light); margin:0 0 8px 0; font-size:0.9rem; text-transform:uppercase; font-weight:500;">📱 Phone Number</p>
+                    <p id="confirmOwnerPhone" style="color:var(--primary-color); font-size:1rem; margin:0; font-weight:500;">-</p>
+                </div>
+
+                <div style="background:linear-gradient(135deg, var(--primary-color), var(--accent-color)); padding:15px; border-radius:8px; color:white;">
+                    <p style="color:rgba(255,255,255,0.8); margin:0 0 8px 0; font-size:0.9rem; text-transform:uppercase; font-weight:500;">🏠 Mess Name</p>
+                    <p id="confirmMessName" style="color:white; font-size:1.1rem; margin:0; font-weight:600;">-</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button onclick="cancelJoin()" class="btn btn-secondary btn-lg" style="flex:1; min-width:120px; color:white;">OK</button>
+                <button id="confirmJoinButton" onclick="confirmJoinNow()" class="btn btn-success btn-lg btn-primary" style="flex:1; min-width:120px; color:white;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/mess-details.js"></script>
+</body>
+</html>

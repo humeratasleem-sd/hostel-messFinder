@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .role-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .role-card {
+            flex: 1;
+            max-width: 200px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .role-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .role-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .login-form-container {
+            display: none;
+        }
+
+        .login-form-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="register.html">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="container" style="max-width: 600px; margin: 50px auto;">
+        <h2 style="text-align: center;">👤 Login to Hostel Mess Finder</h2>
+
+        <!-- Role Selector -->
+        <div class="role-selector">
+            <div class="role-card selected" onclick="selectRole('student')">
+                <div class="icon">👨‍🎓</div>
+                <h4>Student</h4>
+                <p>Browse & Review</p>
+            </div>
+            <div class="role-card" onclick="selectRole('owner')">
+                <div class="icon">🏨</div>
+                <h4>Owner</h4>
+                <p>Manage Mess</p>
+            </div>
+            <div class="role-card" onclick="selectRole('admin')">
+                <div class="icon">👨‍💼</div>
+                <h4>Admin</h4>
+                <p>Manage Site</p>
+            </div>
+        </div>
+
+        <!-- Student Login -->
+        <div class="login-form-container active" id="studentLogin">
+            <form id="studentLoginForm">
+                <div class="form-group">
+                    <label for="studentEmail">Email:</label>
+                    <input
+                        type="email"
+                        id="studentEmail"
+                        name="email"
+                        required
+                        placeholder="your@college.edu"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="studentPassword">Password:</label>
+                    <input
+                        type="password"
+                        id="studentPassword"
+                        name="password"
+                        required
+                        placeholder="Enter your password"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login as Student</button>
+                <p style="text-align: center; margin-top: 15px;">
+                    Don't have an account? <a href="register.html">Register here</a>
+                </p>
+            </form>
+        </div>
+
+        <!-- Owner Login -->
+        <div class="login-form-container" id="ownerLogin">
+            <form id="ownerLoginForm">
+                <div class="form-group">
+                    <label for="ownerEmail">Email:</label>
+                    <input
+                        type="email"
+                        id="ownerEmail"
+                        name="email"
+                        required
+                        placeholder="owner@mess.com"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="ownerPassword">Password:</label>
+                    <input
+                        type="password"
+                        id="ownerPassword"
+                        name="password"
+                        required
+                        placeholder="Enter your password"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login as Owner</button>
+                <p style="text-align: center; margin-top: 15px; color: #666; font-size: 14px;">
+                    Owner account required. Contact admin if needed.
+                </p>
+            </form>
+        </div>
+
+        <!-- Admin Login -->
+        <div class="login-form-container" id="adminLogin">
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminEmail">Email:</label>
+                    <input
+                        type="email"
+                        id="adminEmail"
+                        name="email"
+                        required
+                        placeholder="admin@hostelmessfinder.com"
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password:</label>
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        name="password"
+                        required
+                        placeholder="Enter admin password"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login as Admin</button>
+                <p style="text-align: center; margin-top: 15px; color: #666; font-size: 14px;">
+                    Admin access only. Contact system administrator.
+                </p>
+            </form>
+        </div>
+
+        <!-- Error/Success Messages -->
+        <div id="message" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script>
+        let currentRole = 'student';
+
+        function selectRole(role) {
+            currentRole = role;
+            
+            // Update UI
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.role-card').classList.add('selected');
+
+            // Show relevant form
+            document.querySelectorAll('.login-form-container').forEach(form => {
+                form.classList.remove('active');
+            });
+
+            if (role === 'student') {
+                document.getElementById('studentLogin').classList.add('active');
+            } else if (role === 'owner') {
+                document.getElementById('ownerLogin').classList.add('active');
+            } else if (role === 'admin') {
+                document.getElementById('adminLogin').classList.add('active');
+            }
+        }
+
+        // Handle form submissions
+        document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('studentEmail').value;
+            const password = document.getElementById('studentPassword').value;
+            await handleLogin(email, password, 'student');
+        });
+
+        document.getElementById('ownerLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('ownerEmail').value;
+            const password = document.getElementById('ownerPassword').value;
+            await handleLogin(email, password, 'owner');
+        });
+
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            await handleLogin(email, password, 'admin');
+        });
+
+        async function handleLogin(email, password, role) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userRole', role);
+                    
+                    // Redirect based on role
+                    if (role === 'owner') {
+                        window.location.href = 'owner-dashboard.html';
+                    } else if (role === 'admin') {
+                        window.location.href = 'admin-dashboard.html';
+                    } else {
+                        window.location.href = 'messes.html';
+                    }
+                } else {
+                    showMessage('❌ ' + (data.message || 'Login failed'), 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.style.color = type === 'error' ? '#dc3545' : '#28a745';
+            msgDiv.style.textAlign = 'center';
+        }
+    </script>
+</body>
+</html>

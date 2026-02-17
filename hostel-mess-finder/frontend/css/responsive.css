@@ -1,0 +1,224 @@
+/* ================================================
+   RESPONSIVE DESIGN - PROFESSIONAL BREAKPOINTS
+   ================================================ */
+
+/* ===== LARGE SCREENS (1400px+) ===== */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1360px;
+    }
+}
+
+/* ===== TABLET & LARGE SCREENS (1024px - 1399px) ===== */
+@media (max-width: 1024px) {
+    :root {
+        --spacing-xl: 24px;
+        --spacing-2xl: 32px;
+        --font-size-4xl: 2rem;
+        --font-size-3xl: 1.75rem;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0 24px;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.3rem; }
+
+    .mess-container {
+        grid-template-columns: 1fr;
+    }
+
+    .filters-sidebar {
+        position: static;
+    }
+
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-sidebar {
+        position: static;
+    }
+
+    .auth-form-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .steps {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .features-grid,
+    .mess-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+/* ===== TABLETS (768px - 1023px) ===== */
+@media (max-width: 768px) {
+    :root {
+        --spacing-lg: 16px;
+        --spacing-xl: 20px;
+        --font-size-4xl: 1.75rem;
+        --font-size-3xl: 1.5rem;
+    }
+
+    .container {
+        padding: 0 16px;
+    }
+
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    .nav-links {
+        gap: 15px;
+        font-size: 0.9rem;
+    }
+
+    .hero {
+        padding: 80px 16px;
+    }
+
+    .dashboard-sidebar {
+        display: block;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mess-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .features-grid,
+    .steps {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===== SMALL PHONES (480px - 767px) ===== */
+@media (max-width: 480px) {
+    :root {
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+        --font-size-3xl: 1.35rem;
+        --font-size-2xl: 1.1rem;
+    }
+
+    .container {
+        padding: 0 12px;
+    }
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.1rem; }
+
+    .navbar .container {
+        padding: 10px 12px;
+    }
+
+    .nav-brand h1 {
+        font-size: 1.2rem;
+    }
+
+    .nav-links {
+        gap: 10px;
+        font-size: 0.85rem;
+    }
+
+    .hero {
+        padding: 60px 12px;
+        min-height: 350px;
+    }
+
+    .hero h2 {
+        font-size: 1.35rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mess-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .features-grid,
+    .steps {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .feature-card,
+    .step {
+        padding: 16px;
+    }
+
+    .auth-form-wrapper {
+        gap: 20px;
+    }
+
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    .btn {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .cta {
+        padding: 40px 12px;
+    }
+
+    .cta h2 {
+        font-size: 1.35rem;
+    }
+
+    footer {
+        padding: 20px 12px;
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.35rem;
+        margin-bottom: 20px;
+    }
+
+    .profile-info {
+        grid-template-columns: 1fr;
+    }
+
+    .mess-details-wrapper {
+        gap: 16px;
+    }
+
+    .mess-details-right {
+        position: static;
+    }
+}

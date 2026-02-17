@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="#" id="logoutLink">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <div class="container">
+        <div class="dashboard-wrapper">
+            <!-- Sidebar -->
+            <aside class="dashboard-sidebar">
+                <div class="user-profile">
+                    <div class="user-avatar">👤</div>
+                    <h3 id="userName">User Name</h3>
+                    <p id="userCollege">College Name</p>
+                    <p id="userEmail" style="font-size: 0.85rem;">email@example.com</p>
+                </div>
+
+                <nav class="dashboard-menu">
+                    <a href="#" class="menu-item active" data-tab="profile">
+                        <span>📋</span> Profile
+                    </a>
+                    <a href="#" class="menu-item" data-tab="reviews">
+                        <span>⭐</span> My Reviews
+                    </a>
+                    <a href="#" class="menu-item" data-tab="settings">
+                        <span>⚙️</span> Settings
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="dashboard-content">
+                <!-- Profile Tab -->
+                <div id="profileTab" class="tab-content active">
+                    <h2>My Profile</h2>
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <label>Full Name</label>
+                                <p id="profileName">Loading...</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Email Address</label>
+                                <p id="profileEmail">Loading...</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Phone Number</label>
+                                <p id="profilePhone">Not provided</p>
+                            </div>
+                            <div class="info-item">
+                                <label>College/University</label>
+                                <p id="profileCollege">Not provided</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Member Since</label>
+                                <p id="memberSince">Loading...</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Account Status</label>
+                                <p style="color: var(--success); font-weight: 600;">✓ Active</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div id="reviewsTab" class="tab-content">
+                    <h2>My Reviews</h2>
+                    
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <h4>📝 Total Reviews</h4>
+                            <p id="totalReviewsCount">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>⭐ Average Rating</h4>
+                            <p id="avgRating">0.0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>🏆 Most Reviewed</h4>
+                            <p id="mostReviewedMess">None</p>
+                        </div>
+                    </div>
+
+                    <div id="userReviewsContainer" class="reviews-list">
+                        <!-- Reviews will be loaded dynamically -->
+                    </div>
+
+                    <div id="noUserReviews" style="display:none;" class="no-content">
+                        <p>You haven't submitted any reviews yet. Visit the messes page to share your experience!</p>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settingsTab" class="tab-content">
+                    <h2>Account Settings</h2>
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Preferences</h3>
+                            <p>Manage your account preferences and notifications here.</p>
+                            
+                            <div style="margin-top: 24px;">
+                                <h4>Danger Zone</h4>
+                                <button class="btn btn-outline" onclick="if(confirm('Are you sure? This action cannot be undone.')) { logout(); }">
+                                    🚪 Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Hostel Mess Finder. All rights reserved. | Built with ❤️ for students</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
+                    <a href="messes.html" class="btn btn-primary">Browse Messes</a>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <h2>Settings</h2>
+                <div class="settings-section">
+                    <h3>Account Security</h3>
+                    <div class="setting-item">
+                        <label>Change Password</label>
+                        <button class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
+                    </div>
+                </div>
+
+                <div class="settings-section danger-zone">
+                    <h3>Danger Zone</h3>
+                    <div class="setting-item">
+                        <label>Delete Account</label>
+                        <button class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Edit Review -->
+    <div id="editReviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Review</h2>
+            <form id="editReviewForm">
+                <div class="form-group">
+                    <label>Rating *</label>
+                    <div class="star-rating" id="editMainRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="editRatingInput" value="0" />
+                </div>
+
+                <div class="form-group">
+                    <label for="editReviewText">Review *</label>
+                    <textarea id="editReviewText" required maxlength="1000"></textarea>
+                </div>
+
+                <div id="editErrorMessage" class="error-message"></div>
+
+                <button type="submit" class="btn btn-primary">Update Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

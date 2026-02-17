@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Messes - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .intent-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .intent-modal.active {
+            display: flex;
+        }
+
+        .intent-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        .intent-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .intent-actions .btn {
+            min-width: 180px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html" class="active">Browse Messes</a></li>
+                <li><a href="login.html" id="loginLink">Login</a></li>
+                <li><a href="register.html" id="registerLink">Register</a></li>
+                <li><a href="admin-login.html" id="adminLoginLink">Admin</a></li>
+                <li><a href="dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mess-container">
+        <!-- Sidebar - Filters -->
+        <aside class="filters-sidebar">
+            <h3>Filter Messes</h3>
+
+            <div class="filter-group">
+                <label for="searchInput">Search by Name/Location</label>
+                <input type="text" id="searchInput" placeholder="Search..." />
+            </div>
+
+            <div class="filter-group">
+                <label for="foodTypeFilter">Food Type</label>
+                <select id="foodTypeFilter">
+                    <option value="">All</option>
+                    <option value="Veg">Vegetarian</option>
+                    <option value="Non-Veg">Non-Vegetarian</option>
+                    <option value="Both">Both</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="priceMin">Price Range</label>
+                <div class="price-inputs">
+                    <input type="number" id="priceMin" placeholder="Min" />
+                    <input type="number" id="priceMax" placeholder="Max" />
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="ratingFilter">Min Rating</label>
+                <select id="ratingFilter">
+                    <option value="">All</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                </select>
+            </div>
+
+            <button id="applyFilters" class="btn btn-primary btn-block">Apply Filters</button>
+            <button id="resetFilters" class="btn btn-secondary btn-block">Reset</button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="messes-content">
+            <div class="messes-header">
+                <h2>Browse Available Messes</h2>
+                <p id="resultCount">Loading...</p>
+            </div>
+
+            <div id="messesGrid" class="messes-grid">
+                <!-- Mess cards will be loaded here -->
+            </div>
+
+            <div id="noResults" class="no-results" style="display:none;">
+                <p>No messes found. Try adjusting your filters.</p>
+            </div>
+
+            <div id="loadingMessage" class="loading">
+                Loading messes...
+            </div>
+        </main>
+    </div>
+
+    <!-- Browse Intent Modal -->
+    <div id="browseIntentModal" class="intent-modal">
+        <div class="intent-card">
+            <h3 style="margin-top: 0;">Why are you browsing messes?</h3>
+            <p style="color: #666;">Choose how you want to use the mess details page.</p>
+            <div class="intent-actions">
+                <button id="chooseReviewMode" class="btn btn-success">I want to give reviews</button>
+                <button id="chooseJoinMode" class="btn btn-secondary">I want to search a new mess</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/messes.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showNotification('⚠️ Please login to browse messes', 'error', 3000);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

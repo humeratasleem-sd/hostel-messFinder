@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html" class="active">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Register Container -->
+    <div class="auth-container">
+        <div class="auth-form-wrapper">
+            <div class="auth-form">
+                <h2>Create Your Account</h2>
+                <p class="subtitle">Join verified student community</p>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="student@college.edu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="10-digit phone number">
+                    </div>
+
+                    <div class="form-group" id="collegeGroup">
+                        <label for="college">College Name *</label>
+                        <input type="text" id="college" name="college" placeholder="Your college name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Register As *</label>
+                        <select id="role" name="role" required>
+                            <option value="student">Student</option>
+                            <option value="owner">Hostel Owner</option>
+                        </select>
+                        <small>Select your account type</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required placeholder="Min 6 characters">
+                        <small>Minimum 6 characters required</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Re-enter password">
+                    </div>
+
+                    <div id="errorMessage" class="error-message"></div>
+                    <div id="successMessage" class="success-message"></div>
+
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Create Account</button>
+                </form>
+
+                <p class="auth-link">Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+
+            <div class="auth-benefits">
+                <h3>Why Register?</h3>
+                <ul>
+                    <li>✓ Share verified reviews</li>
+                    <li>✓ Rate mess facilities</li>
+                    <li>✓ Save favorite messes</li>
+                    <li>✓ Manage your profile</li>
+                    <li>✓ Track your reviews</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const college = document.getElementById('college').value.trim();
+            const role = document.getElementById('role').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Clear messages
+            document.getElementById('errorMessage').innerHTML = '';
+            document.getElementById('successMessage').innerHTML = '';
+
+            // Validation
+            if (!name || !email || !phone || !password) {
+                showError('Please fill all required fields');
+                return;
+            }
+
+            // Validate college for students only
+            if (role === 'student' && !college) {
+                showError('College name is required for students');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            if (phone.length !== 10 || isNaN(phone)) {
+                showError('Phone number must be 10 digits');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        college,
+                        role,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userType', data.user.role === 'hostel_owner' ? 'owner' : data.user.role);
+                    localStorage.removeItem('browseMode');
+                    
+                    document.getElementById('successMessage').innerHTML = 'Registration successful! Redirecting...';
+                    setTimeout(() => {
+                        if (data.user.role === 'hostel_owner') {
+                            window.location.href = 'owner-dashboard.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    showError(data.message || 'Registration failed');
+                }
+            } catch (error) {
+                showError('Error during registration: ' + error.message);
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('errorMessage').innerHTML = message;
+        }
+
+        // Toggle college field based on role
+        document.getElementById('role').addEventListener('change', function() {
+            const collegeGroup = document.getElementById('collegeGroup');
+            const collegeInput = document.getElementById('college');
+            const emailInput = document.getElementById('email');
+            
+            if (this.value === 'owner') {
+                collegeGroup.style.display = 'none';
+                collegeInput.removeAttribute('required');
+                emailInput.placeholder = 'owner@hostel.com';
+            } else {
+                collegeGroup.style.display = 'block';
+                collegeInput.setAttribute('required', 'required');
+                emailInput.placeholder = 'student@college.edu';
+            }
+        });
+    </script>
+</body>
+</html>

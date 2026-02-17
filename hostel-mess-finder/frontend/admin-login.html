@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Hostel Mess Finder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🍽️ Hostel Mess Finder</h1>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="messes.html">Browse Messes</a></li>
+                <li><a href="login.html">User Login</a></li>
+                <li><a href="admin-login.html" class="active">Admin Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Admin Login Container -->
+    <div class="auth-container">
+        <div class="auth-form-wrapper" style="grid-template-columns: 1fr;">
+            <div class="auth-form">
+                <h2>🔐 Admin Portal</h2>
+                <p class="subtitle">Administrator Access Only</p>
+
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter email">
+                        <small>Default: admin123@gmail.com</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter password">
+                        <small>Default: admin123</small>
+                    </div>
+
+                    <div id="errorMessage" class="error-message"></div>
+                    <div id="successMessage" class="success-message"></div>
+
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Login to Admin Panel</button>
+                </form>
+
+                <p class="auth-link">User Account? <a href="login.html">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin login handler
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Clear messages
+            document.getElementById('errorMessage').innerHTML = '';
+            document.getElementById('successMessage').innerHTML = '';
+
+            if (!email || !password) {
+                showError('Please fill all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Verify the user is actually an admin
+                    if (data.user.role !== 'admin') {
+                        showError('This account is not an admin account. Please use the regular login.');
+                        return;
+                    }
+                    
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('userType', data.user.role);
+                    
+                    document.getElementById('successMessage').innerHTML = 'Admin login successful! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'admin-dashboard.html';
+                    }, 1500);
+                } else {
+                    showError(data.message || 'Admin login failed');
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showError('Failed to connect to server. Please make sure the backend is running on port 5000.');
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('errorMessage').innerHTML = '❌ ' + message;
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            if (token && userType === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

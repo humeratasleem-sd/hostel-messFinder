@@ -1,6 +1,3 @@
-// Sample data for populating the database
-// Run this script to seed initial messes
-
 const mongoose = require('mongoose');
 const Mess = require('./models/Mess');
 const User = require('./models/User');

@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
@@ -23,10 +22,8 @@
         </div>
     </nav>
 
-    <!-- Main Dashboard -->
     <div class="container">
         <div class="dashboard-wrapper">
-            <!-- Sidebar -->
             <aside class="dashboard-sidebar">
                 <div class="user-profile">
                     <div class="user-avatar">👤</div>
@@ -48,9 +45,7 @@
                 </nav>
             </aside>
 
-            <!-- Main Content -->
             <main class="dashboard-content">
-                <!-- Profile Tab -->
                 <div id="profileTab" class="tab-content active">
                     <h2>My Profile</h2>
                     <div class="profile-card">
@@ -83,10 +78,8 @@
                     </div>
                 </div>
 
-                <!-- Reviews Tab -->
                 <div id="reviewsTab" class="tab-content">
                     <h2>My Reviews</h2>
-                    
                     <div class="stats-cards">
                         <div class="stat-card">
                             <h4>📝 Total Reviews</h4>
@@ -102,27 +95,24 @@
                         </div>
                     </div>
 
-                    <div id="userReviewsContainer" class="reviews-list">
-                        <!-- Reviews will be loaded dynamically -->
-                    </div>
+                    <div id="userReviewsContainer" class="reviews-list"></div>
 
                     <div id="noUserReviews" style="display:none;" class="no-content">
-                        <p>You haven't submitted any reviews yet. Visit the messes page to share your experience!</p>
+                        <p>You have not submitted any reviews yet. Visit the messes page to share your experience.</p>
+                        <a href="messes.html" class="btn btn-primary">Browse Messes</a>
                     </div>
                 </div>
 
-                <!-- Settings Tab -->
                 <div id="settingsTab" class="tab-content">
                     <h2>Account Settings</h2>
                     <div class="card">
                         <div class="card-body">
                             <h3>Preferences</h3>
                             <p>Manage your account preferences and notifications here.</p>
-                            
                             <div style="margin-top: 24px;">
                                 <h4>Danger Zone</h4>
                                 <button class="btn btn-outline" onclick="if(confirm('Are you sure? This action cannot be undone.')) { logout(); }">
-                                    🚪 Logout
+                                    Logout
                                 </button>
                             </div>
                         </div>
@@ -132,45 +122,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 Hostel Mess Finder. All rights reserved. | Built with ❤️ for students</p>
-        </div>
-    </footer>
-
-    <script src="js/auth.js"></script>
-    <script src="js/dashboard.js"></script>
-</body>
-</html>
-                    <a href="messes.html" class="btn btn-primary">Browse Messes</a>
-                </div>
-            </div>
-
-            <!-- Settings Tab -->
-            <div id="settingsTab" class="tab-content">
-                <h2>Settings</h2>
-                <div class="settings-section">
-                    <h3>Account Security</h3>
-                    <div class="setting-item">
-                        <label>Change Password</label>
-                        <button class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
-                    </div>
-                </div>
-
-                <div class="settings-section danger-zone">
-                    <h3>Danger Zone</h3>
-                    <div class="setting-item">
-                        <label>Delete Account</label>
-                        <button class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal for Edit Review -->
-    <div id="editReviewModal" class="modal">
+    <div id="editReviewModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Edit Review</h2>
@@ -184,7 +136,7 @@
                         <span class="star" data-value="4">★</span>
                         <span class="star" data-value="5">★</span>
                     </div>
-                    <input type="hidden" id="editRatingInput" value="0" />
+                    <input type="hidden" id="editRatingInput" value="0">
                 </div>
 
                 <div class="form-group">
@@ -193,14 +145,12 @@
                 </div>
 
                 <div id="editErrorMessage" class="error-message"></div>
-
                 <button type="submit" class="btn btn-primary">Update Review</button>
             </form>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <footer>
         <div class="container">
             <p>&copy; 2026 Hostel Mess Finder. All rights reserved.</p>
         </div>

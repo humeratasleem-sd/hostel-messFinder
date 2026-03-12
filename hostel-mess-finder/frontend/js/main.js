@@ -8,32 +8,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadHomepageStats() {
     try {
-        // Fetch all messes
         const messesResponse = await fetch(`${API_BASE_URL}/messes`, {
             headers: getAuthHeaders()
         });
-
-        // Fetch all reviews
-        const reviewsResponse = await fetch(`${API_BASE_URL}/reviews`, {
-            headers: getAuthHeaders()
-        });
-
-        if (messesResponse.ok) {
-            const messesData = await messesResponse.json();
-            document.getElementById('messCount').textContent = messesData.count || 0;
+        if (!messesResponse.ok) {
+            return;
         }
 
-        // Get review count from messes
-        if (messesResponse.ok) {
-            const messes = (await messesResponse.json()).data || [];
-            const totalReviews = messes.reduce((sum, mess) => sum + (mess.totalReviews || 0), 0);
-            document.getElementById('reviewCount').textContent = totalReviews;
-        }
+        const messesData = await messesResponse.json();
+        const messes = messesData.data || [];
+        const totalReviews = messes.reduce((sum, mess) => sum + (mess.totalReviews || 0), 0);
+        const connectedStudents = messes.reduce((sum, mess) => sum + ((mess.joinedStudents || []).length), 0);
+        const ownerCount = new Set(messes.map((mess) => mess.ownerId?._id).filter(Boolean)).size;
 
-        // Count unique users (approximate from localStorage)
-        // In production, this would be fetched from backend
-        const userCount = localStorage.getItem('userCount') || '0';
-        document.getElementById('userCount').textContent = userCount;
+        document.getElementById('messCount').textContent = messesData.count || 0;
+        document.getElementById('reviewCount').textContent = totalReviews;
+        document.getElementById('studentCount').textContent = connectedStudents + ownerCount;
     } catch (error) {
         console.error('Error loading stats:', error);
     }

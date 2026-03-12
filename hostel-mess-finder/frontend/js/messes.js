@@ -55,18 +55,39 @@ async function loadMesses() {
             headers: getAuthHeaders()
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            allMesses = data.data || [];
-            filteredMesses = [...allMesses];
-            renderMesses();
-        } else {
+        if (!response.ok) {
             showErrorMessage('Failed to load messes');
+            return;
         }
+
+        const data = await response.json();
+        allMesses = data.data || [];
+        filteredMesses = [...allMesses];
+        renderMesses();
     } catch (error) {
         console.error('Error loading messes:', error);
         showErrorMessage('Error loading messes: ' + error.message);
     }
+}
+
+function getMessCardImage(mess) {
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+            <defs>
+                <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                    <stop stop-color="#ff6b35" offset="0%"/>
+                    <stop stop-color="#ff9f1c" offset="45%"/>
+                    <stop stop-color="#1e90ff" offset="100%"/>
+                </linearGradient>
+            </defs>
+            <rect width="800" height="500" fill="url(#g)"/>
+            <circle cx="660" cy="90" r="110" fill="rgba(255,255,255,0.14)"/>
+            <circle cx="130" cy="420" r="150" fill="rgba(255,255,255,0.12)"/>
+            <text x="60" y="230" fill="white" font-size="48" font-family="Poppins, Arial, sans-serif" font-weight="700">${String(mess.name).replace(/&/g, '&amp;')}</text>
+            <text x="60" y="285" fill="rgba(255,255,255,0.88)" font-size="28" font-family="Poppins, Arial, sans-serif">${String(mess.location).replace(/&/g, '&amp;')}</text>
+        </svg>`;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
 function renderMesses() {
@@ -77,52 +98,62 @@ function renderMesses() {
 
     if (!grid) return;
 
-    loadingMessage.style.display = 'none';
+    if (loadingMessage) loadingMessage.style.display = 'none';
 
     if (filteredMesses.length === 0) {
         grid.innerHTML = '';
-        noResults.style.display = 'block';
-        resultCount.textContent = '0 messes found';
+        if (noResults) noResults.style.display = 'block';
+        if (resultCount) resultCount.textContent = '0 messes found';
         return;
     }
 
-    noResults.style.display = 'none';
-    resultCount.textContent = `${filteredMesses.length} mess${filteredMesses.length !== 1 ? 'es' : ''} found`;
+    if (noResults) noResults.style.display = 'none';
+    if (resultCount) {
+        resultCount.textContent = `${filteredMesses.length} mess${filteredMesses.length !== 1 ? 'es' : ''} found`;
+    }
 
-    grid.innerHTML = filteredMesses.map(mess => {
-        const isInComparison = comparedMesses.some(m => m._id === mess._id);
+    grid.innerHTML = filteredMesses.map((mess) => {
+        const isInComparison = comparedMesses.some((m) => m._id === mess._id);
+        const rating = (mess.overallRating || 0).toFixed(1);
+
         return `
-        <div class="mess-card">
-            <div class="mess-card-header">
-                <div class="mess-card-title">${mess.name}</div>
-                <div style="font-size: 0.9rem; opacity: 0.9;">📍 ${mess.location}</div>
+        <div class="mess-card reveal active">
+            <div class="mess-card-media">
+                <img src="${getMessCardImage(mess)}" alt="${mess.name}">
+                <div class="mess-card-overlay"></div>
+                <div class="rating-badge">Rating ${rating}</div>
+                <div class="mess-card-header">
+                    <div class="mess-card-title">${mess.name}</div>
+                    <div class="mess-card-subtitle">Location: ${mess.location}</div>
+                </div>
             </div>
             <div class="mess-card-body">
                 <div class="mess-card-location">
-                    ${mess.foodType}
+                    <span class="mess-card-chip">${mess.foodType}</span>
+                    <span class="mess-card-chip">${mess.totalReviews || 0} reviews</span>
                 </div>
                 <div class="mess-card-info">
-                    <p><strong>₹${mess.monthlyPrice}/month</strong></p>
-                    <p>Reviews: ${mess.totalReviews || 0}</p>
+                    <p><strong>Rs ${mess.monthlyPrice}/month</strong></p>
+                    <p>${mess.phoneNumber || 'Contact at venue'}</p>
                 </div>
                 <div class="mess-card-footer">
-                    <span class="mess-rating">★ ${(mess.overallRating || 0).toFixed(1)}</span>
+                    <span class="mess-rating">Quality | Hygiene | Value</span>
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <div class="mess-card-actions">
                     <button class="btn btn-small" onclick="viewMessDetails('${mess._id}')">View Details</button>
                     <button class="btn btn-small ${isInComparison ? 'btn-danger' : 'btn-secondary'}" onclick="toggleComparison('${mess._id}')" id="compare-btn-${mess._id}">
-                        ${isInComparison ? '✓ Comparing' : '📊 Compare'}
+                        ${isInComparison ? 'Comparing' : 'Compare'}
                     </button>
                 </div>
             </div>
-        </div>
-    `;
+        </div>`;
     }).join('');
 
-    // Update compare button styling
     updateCompareButtonStyles();
+    if (typeof window.refreshRevealElements === 'function') {
+        window.refreshRevealElements();
+    }
 }
-
 
 function viewMessDetails(messId) {
     const userType = localStorage.getItem('userType');
@@ -134,6 +165,7 @@ function viewMessDetails(messId) {
         document.body.style.overflow = 'hidden';
         return;
     }
+
     window.location.href = `mess-details.html?id=${messId}`;
 }
 
@@ -146,9 +178,7 @@ function setupFilterListeners() {
     const applyFilters = document.getElementById('applyFilters');
     const resetFilters = document.getElementById('resetFilters');
 
-    if (applyFilters) {
-        applyFilters.addEventListener('click', applyFiltersClick);
-    }
+    if (applyFilters) applyFilters.addEventListener('click', applyFiltersClick);
 
     if (resetFilters) {
         resetFilters.addEventListener('click', () => {
@@ -162,28 +192,23 @@ function setupFilterListeners() {
         });
     }
 
-    // Real-time search
-    if (searchInput) {
-        searchInput.addEventListener('input', applyFiltersClick);
-    }
+    if (searchInput) searchInput.addEventListener('input', applyFiltersClick);
 }
 
 function applyFiltersClick() {
-    const searchInput = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
     const foodType = document.getElementById('foodTypeFilter')?.value || '';
     const priceMin = parseFloat(document.getElementById('priceMin')?.value) || 0;
     const priceMax = parseFloat(document.getElementById('priceMax')?.value) || Infinity;
     const ratingMin = parseFloat(document.getElementById('ratingFilter')?.value) || 0;
 
-    filteredMesses = allMesses.filter(mess => {
-        const matchesSearch = !searchInput || 
-            mess.name.toLowerCase().includes(searchInput) || 
-            mess.location.toLowerCase().includes(searchInput);
-        
+    filteredMesses = allMesses.filter((mess) => {
+        const matchesSearch = !searchTerm
+            || mess.name.toLowerCase().includes(searchTerm)
+            || mess.location.toLowerCase().includes(searchTerm);
         const matchesFood = !foodType || mess.foodType === foodType;
         const matchesPrice = mess.monthlyPrice >= priceMin && mess.monthlyPrice <= priceMax;
-        const matchesRating = mess.overallRating >= ratingMin;
-
+        const matchesRating = (mess.overallRating || 0) >= ratingMin;
         return matchesSearch && matchesFood && matchesPrice && matchesRating;
     });
 
@@ -199,14 +224,12 @@ function showErrorMessage(message) {
 
 // ===== COMPARISON FUNCTIONS =====
 function toggleComparison(messId) {
-    const messToToggle = allMesses.find(m => m._id === messId);
-    
+    const messToToggle = allMesses.find((mess) => mess._id === messId);
     if (!messToToggle) return;
 
-    const isAlreadyCompared = comparedMesses.some(m => m._id === messId);
-
+    const isAlreadyCompared = comparedMesses.some((mess) => mess._id === messId);
     if (isAlreadyCompared) {
-        comparedMesses = comparedMesses.filter(m => m._id !== messId);
+        comparedMesses = comparedMesses.filter((mess) => mess._id !== messId);
     } else {
         if (comparedMesses.length >= 5) {
             showNotification('You can compare maximum 5 messes at a time', 'info');
@@ -217,18 +240,17 @@ function toggleComparison(messId) {
 
     saveComparisonToStorage();
     renderMesses();
-    updateCompareButtonStyles();
     updateComparisonBar();
 }
 
 function saveComparisonToStorage() {
-    sessionStorage.setItem('comparedMesses', JSON.stringify(comparedMesses.map(m => m._id)));
+    sessionStorage.setItem('comparedMesses', JSON.stringify(comparedMesses.map((mess) => mess._id)));
 }
 
 function loadComparisonFromStorage() {
     try {
         const messIds = JSON.parse(sessionStorage.getItem('comparedMesses') || '[]');
-        comparedMesses = messIds.map(id => allMesses.find(m => m._id === id)).filter(m => m);
+        comparedMesses = messIds.map((id) => allMesses.find((mess) => mess._id === id)).filter(Boolean);
         updateComparisonBar();
     } catch (e) {
         console.error('Error loading comparison:', e);
@@ -236,83 +258,77 @@ function loadComparisonFromStorage() {
 }
 
 function updateCompareButtonStyles() {
-    // Add styling for small buttons if not already in CSS
-    if (!document.getElementById('compare-style')) {
-        const style = document.createElement('style');
-        style.id = 'compare-style';
-        style.innerHTML = `
-            .btn-small {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-                flex: 1;
-                min-width: 100px;
-            }
-            .btn-danger {
-                background-color: #ff6b6b !important;
-                color: white !important;
-                border: none !important;
-            }
-            .btn-secondary {
-                background-color: #6c757d !important;
-                color: white !important;
-                border: none !important;
-            }
-            .comparison-bar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: white;
-                border-top: 2px solid #667eea;
-                padding: 15px;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-                display: none;
-                z-index: 1000;
-            }
-            .comparison-bar.active {
-                display: block;
-            }
-            .comparison-bar-content {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 15px;
-            }
-            .comparison-mess-list {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-                flex: 1;
-            }
-            .comparison-badge {
-                background: #667eea;
-                color: white;
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                min-width: 150px;
-            }
-            .comparison-badge button {
-                background: none;
-                border: none;
-                color: white;
-                cursor: pointer;
-                margin-left: 10px;
-                font-size: 1.2rem;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    if (document.getElementById('compare-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'compare-style';
+    style.innerHTML = `
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            flex: 1;
+            min-width: 100px;
+        }
+        .btn-danger {
+            background-color: #ff6b6b !important;
+            color: white !important;
+            border: none !important;
+        }
+        .comparison-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            border-top: 2px solid #667eea;
+            padding: 15px;
+            box-shadow: 0 -2px 18px rgba(0,0,0,0.12);
+            display: none;
+            z-index: 1000;
+        }
+        .comparison-bar.active {
+            display: block;
+        }
+        .comparison-bar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .comparison-mess-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .comparison-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 150px;
+        }
+        .comparison-badge button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 function updateComparisonBar() {
     let bar = document.getElementById('comparisonBar');
-    
     if (!bar) {
         bar = document.createElement('div');
         bar.id = 'comparisonBar';
@@ -326,10 +342,10 @@ function updateComparisonBar() {
     }
 
     bar.classList.add('active');
-    const messesHtml = comparedMesses.map(mess => `
+    const messesHtml = comparedMesses.map((mess) => `
         <div class="comparison-badge">
-            ${mess.name.substring(0, 15)}... 
-            <button onclick="toggleComparison('${mess._id}')">✕</button>
+            ${mess.name.substring(0, 15)}...
+            <button onclick="toggleComparison('${mess._id}')">x</button>
         </div>
     `).join('');
 
@@ -349,7 +365,7 @@ function goToComparison() {
         showNotification('Select at least 2 messes to compare', 'info');
         return;
     }
-    window.location.href = `compare.html`;
+    window.location.href = 'compare.html';
 }
 
 function clearComparison() {
@@ -360,7 +376,6 @@ function clearComparison() {
 }
 
 function showNotification(message, type = 'success') {
-    // Using the notification system from notifications.js if available
     if (typeof showSuccessMessage === 'function') {
         if (type === 'error') {
             showErrorMessage(message);
@@ -373,4 +388,3 @@ function showNotification(message, type = 'success') {
         alert(message);
     }
 }
-

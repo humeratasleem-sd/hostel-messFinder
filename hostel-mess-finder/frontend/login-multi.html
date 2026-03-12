@@ -69,17 +69,17 @@
 
         <!-- Role Selector -->
         <div class="role-selector">
-            <div class="role-card selected" onclick="selectRole('student')">
+            <div class="role-card selected" onclick="selectRole('student', this)">
                 <div class="icon">👨‍🎓</div>
                 <h4>Student</h4>
                 <p>Browse & Review</p>
             </div>
-            <div class="role-card" onclick="selectRole('owner')">
+            <div class="role-card" onclick="selectRole('owner', this)">
                 <div class="icon">🏨</div>
                 <h4>Owner</h4>
                 <p>Manage Mess</p>
             </div>
-            <div class="role-card" onclick="selectRole('admin')">
+            <div class="role-card" onclick="selectRole('admin', this)">
                 <div class="icon">👨‍💼</div>
                 <h4>Admin</h4>
                 <p>Manage Site</p>
@@ -191,14 +191,16 @@
     <script>
         let currentRole = 'student';
 
-        function selectRole(role) {
+        function selectRole(role, cardElement) {
             currentRole = role;
             
             // Update UI
             document.querySelectorAll('.role-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            event.target.closest('.role-card').classList.add('selected');
+            if (cardElement) {
+                cardElement.classList.add('selected');
+            }
 
             // Show relevant form
             document.querySelectorAll('.login-form-container').forEach(form => {
@@ -250,7 +252,12 @@
 
                 if (response.ok) {
                     localStorage.setItem('token', data.token);
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    localStorage.setItem('userType', role);
                     localStorage.setItem('userRole', role);
+                    localStorage.removeItem('browseMode');
                     
                     // Redirect based on role
                     if (role === 'owner') {

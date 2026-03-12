@@ -29,6 +29,10 @@
 
     .mess-container {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "search"
+            "filters"
+            "content";
     }
 
     .filters-sidebar {
@@ -79,8 +83,21 @@
         font-size: 0.9rem;
     }
 
+    body {
+        padding-top: 78px;
+    }
+
+    .navbar .container {
+        min-height: 78px;
+    }
+
     .hero {
-        padding: 80px 16px;
+        min-height: calc(80vh - 78px);
+        padding: 72px 16px 56px;
+    }
+
+    .hero-actions {
+        gap: 12px;
     }
 
     .dashboard-sidebar {
@@ -130,8 +147,13 @@
     h2 { font-size: 1.25rem; }
     h3 { font-size: 1.1rem; }
 
+    body {
+        padding-top: 72px;
+    }
+
     .navbar .container {
         padding: 10px 12px;
+        min-height: 72px;
     }
 
     .nav-brand h1 {
@@ -144,8 +166,18 @@
     }
 
     .hero {
-        padding: 60px 12px;
-        min-height: 350px;
+        padding: 56px 12px 44px;
+        min-height: calc(76vh - 72px);
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-actions .btn,
+    .hero .btn-box {
+        width: 100%;
     }
 
     .hero h2 {

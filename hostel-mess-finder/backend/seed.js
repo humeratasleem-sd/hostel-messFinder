@@ -1,3 +1,6 @@
+// Sample data for populating the database
+// Run this script to seed initial messes
+
 const mongoose = require('mongoose');
 const Mess = require('./models/Mess');
 const User = require('./models/User');
@@ -89,7 +92,7 @@ const seedDatabase = async () => {
                 role: 'admin'
             });
             await adminUser.save();
-            console.log(' Admin user created: admin123@gmail.com / admin123');
+            console.log('✓ Admin user created: admin123@gmail.com / admin123');
         } else {
             console.log('Admin user already exists');
         }

@@ -54,6 +54,32 @@
             padding-bottom: 10px;
         }
 
+        .login-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .login-meta-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .login-meta-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .login-meta-card h4 {
+            margin: 6px 0 0;
+            color: #222;
+            font-size: 20px;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -162,6 +188,45 @@
             </div>
         </div>
 
+        <div class="admin-section">
+            <h2>🔐 Login Details</h2>
+            <div class="login-meta-grid">
+                <div class="login-meta-card">
+                    <p>Admin Last Login</p>
+                    <h4 id="adminLastLogin">-</h4>
+                </div>
+                <div class="login-meta-card">
+                    <p>Admin Login Count</p>
+                    <h4 id="adminLoginCount">0</h4>
+                </div>
+                <div class="login-meta-card">
+                    <p>Active in Last 24h</p>
+                    <h4 id="activeLast24h">0</h4>
+                </div>
+                <div class="login-meta-card">
+                    <p>Never Logged In</p>
+                    <h4 id="neverLoggedIn">0</h4>
+                </div>
+            </div>
+
+            <table class="data-table" id="loginDetailsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Login Count</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">Loading login details...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- User Management -->
         <div class="admin-section">
             <h2>👥 User Management</h2>
@@ -233,7 +298,7 @@
     <script>
         // Check if admin is logged in
         const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const admin = JSON.parse(localStorage.getItem('user') || '{}');
         const userType = localStorage.getItem('userType');
         
         if (!token || userType !== 'admin') {
@@ -241,13 +306,54 @@
             window.location.href = 'login.html';
         }
 
-        document.getElementById('adminName').textContent = user.name || 'Admin';
+        document.getElementById('adminName').textContent = admin.name || 'Admin';
 
         function getAdminHeaders() {
             return {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             };
+        }
+
+        function formatDateTime(dateValue) {
+            if (!dateValue) return '-';
+            const date = new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return '-';
+            return date.toLocaleString();
+        }
+
+        function renderLoginDetails(detailsData) {
+            const session = detailsData.session || {};
+            const loginSummary = detailsData.loginSummary || {};
+            const recentLogins = detailsData.recentLogins || [];
+
+            const adminLastLoginEl = document.getElementById('adminLastLogin');
+            const adminLoginCountEl = document.getElementById('adminLoginCount');
+            const activeLast24hEl = document.getElementById('activeLast24h');
+            const neverLoggedInEl = document.getElementById('neverLoggedIn');
+
+            if (adminLastLoginEl) adminLastLoginEl.textContent = formatDateTime(session.lastLogin);
+            if (adminLoginCountEl) adminLoginCountEl.textContent = session.loginCount || 0;
+            if (activeLast24hEl) activeLast24hEl.textContent = loginSummary.activeLast24h || 0;
+            if (neverLoggedInEl) neverLoggedInEl.textContent = loginSummary.neverLoggedIn || 0;
+
+            const loginTableBody = document.querySelector('#loginDetailsTable tbody');
+            if (!loginTableBody) return;
+
+            if (!recentLogins.length) {
+                loginTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No login activity found</td></tr>';
+                return;
+            }
+
+            loginTableBody.innerHTML = recentLogins.map((item) => `
+                <tr>
+                    <td>${item.name || '-'}</td>
+                    <td>${item.email || '-'}</td>
+                    <td>${item.role || '-'}</td>
+                    <td>${item.loginCount || 0}</td>
+                    <td>${formatDateTime(item.lastLogin)}</td>
+                </tr>
+            `).join('');
         }
 
         // Load dashboard data
@@ -264,6 +370,20 @@
                     document.getElementById('totalLogins').textContent = stats.logins || 0;
                     document.getElementById('totalMesses').textContent = stats.messes || 0;
                     document.getElementById('totalReviews').textContent = stats.reviews || 0;
+                }
+
+                const loginDetailsResponse = await fetch('http://localhost:5000/api/admin/login-details', {
+                    headers: getAdminHeaders()
+                });
+
+                if (loginDetailsResponse.ok) {
+                    const loginDetails = await loginDetailsResponse.json();
+                    renderLoginDetails(loginDetails);
+                } else {
+                    const loginTableBody = document.querySelector('#loginDetailsTable tbody');
+                    if (loginTableBody) {
+                        loginTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Unable to load login details</td></tr>';
+                    }
                 }
 
                 // Load users, messes, and reviews

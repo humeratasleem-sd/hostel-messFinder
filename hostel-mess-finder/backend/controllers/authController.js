@@ -85,10 +85,10 @@ exports.register = async (req, res) => {
 
 // @desc    Login a user
 // @route   POST /api/auth/login
-// @access  Public (handles students, owners, and admins)
+// @access  Public
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, userType } = req.body;
 
     // Validation
     if (!email || !password) {
@@ -98,13 +98,24 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check for user and password (works for any role: student, hostel_owner, admin)
+    // Check for user and password
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
+    }
+
+    // Validate user type matches
+    if (userType) {
+      const expectedRole = userType === 'owner' ? 'hostel_owner' : userType;
+      if (user.role !== expectedRole) {
+        return res.status(403).json({
+          success: false,
+          message: `This account is not registered as ${userType}. Please select the correct login type.`
+        });
+      }
     }
 
     const isMatch = await user.matchPassword(password);

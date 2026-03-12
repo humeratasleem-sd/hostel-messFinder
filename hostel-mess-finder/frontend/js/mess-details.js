@@ -6,6 +6,36 @@ let currentMessId = null;
 let currentUserReview = null;
 let currentOwnerDetails = null;
 
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = value;
+    }
+}
+
+function setWidth(id, width) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.style.width = width;
+    }
+}
+
+function renderStarText(rating) {
+    const safeRating = Number(rating || 0);
+    const fullStars = Math.round(safeRating);
+    const stars = '★★★★★'.split('').map((s, i) => (i < fullStars ? '★' : '☆')).join('');
+    return `${stars} ${safeRating.toFixed(1)}/5`;
+}
+
+function showDetailsError(message) {
+    const title = document.getElementById('messName');
+    if (title) {
+        title.textContent = message;
+    }
+    setText('heroMessName', message);
+    setText('heroMessMeta', 'Please go back and select a valid mess.');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Get mess ID from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -36,13 +66,32 @@ async function loadMessDetails() {
             const data = await response.json();
             const mess = data.data;
 
-            document.getElementById('messName').textContent = mess.name;
-            document.getElementById('messLocation').textContent = mess.location;
-            document.getElementById('messPrice').textContent = mess.monthlyPrice;
-            document.getElementById('messFoodType').textContent = mess.foodType;
-            document.getElementById('messDescription').textContent = mess.description || 'No description available';
-            document.getElementById('messPhone').textContent = `Phone: ${mess.phoneNumber || 'N/A'}`;
-            document.getElementById('messWebsite').textContent = `Website: ${mess.website || 'N/A'}`;
+            if (!mess) {
+                showDetailsError('Mess details unavailable');
+                return;
+            }
+
+            setText('messName', mess.name || 'Unnamed Mess');
+            setText('messLocation', mess.location || 'Unknown');
+            setText('messPrice', mess.monthlyPrice || 'N/A');
+            setText('messFoodType', mess.foodType || 'N/A');
+            setText('messDescription', mess.description || 'No description available');
+            setText('messPhone', mess.phoneNumber || 'N/A');
+
+            const websiteCell = document.getElementById('messWebsite');
+            if (websiteCell) {
+                if (mess.website) {
+                    websiteCell.innerHTML = `<a href="${mess.website}" target="_blank" rel="noopener noreferrer">${mess.website}</a>`;
+                } else {
+                    websiteCell.textContent = 'N/A';
+                }
+            }
+
+            setText('heroMessName', mess.name || 'Mess Details');
+            setText('heroMessMeta', `${mess.location || 'Unknown location'} • ${mess.foodType || 'Food type unavailable'} • ₹${mess.monthlyPrice || 'N/A'}/month`);
+            // Update page banner title
+            const bannerTitle = document.getElementById('bannerMessName');
+            if (bannerTitle) bannerTitle.textContent = mess.name || 'Mess Details';
 
             const schedule = mess.foodSchedule || {};
             const breakfast = schedule.breakfast || {};
@@ -50,41 +99,49 @@ async function loadMessDetails() {
             const dinner = schedule.dinner || {};
             const snacks = schedule.snacks || {};
 
-            document.getElementById('scheduleBreakfastAvailable').textContent = breakfast.available ? 'Yes' : 'No';
-            document.getElementById('scheduleBreakfastTime').textContent = breakfast.time || '-';
-            document.getElementById('scheduleBreakfastDesc').textContent = breakfast.description || '-';
+            setText('scheduleBreakfastAvailable', breakfast.available ? 'Yes' : 'No');
+            setText('scheduleBreakfastTime', breakfast.time || '-');
+            setText('scheduleBreakfastDesc', breakfast.description || '-');
 
-            document.getElementById('scheduleLunchAvailable').textContent = lunch.available ? 'Yes' : 'No';
-            document.getElementById('scheduleLunchTime').textContent = lunch.time || '-';
-            document.getElementById('scheduleLunchDesc').textContent = lunch.description || '-';
+            setText('scheduleLunchAvailable', lunch.available ? 'Yes' : 'No');
+            setText('scheduleLunchTime', lunch.time || '-');
+            setText('scheduleLunchDesc', lunch.description || '-');
 
-            document.getElementById('scheduleDinnerAvailable').textContent = dinner.available ? 'Yes' : 'No';
-            document.getElementById('scheduleDinnerTime').textContent = dinner.time || '-';
-            document.getElementById('scheduleDinnerDesc').textContent = dinner.description || '-';
+            setText('scheduleDinnerAvailable', dinner.available ? 'Yes' : 'No');
+            setText('scheduleDinnerTime', dinner.time || '-');
+            setText('scheduleDinnerDesc', dinner.description || '-');
 
-            document.getElementById('scheduleSnacksAvailable').textContent = snacks.available ? 'Yes' : 'No';
-            document.getElementById('scheduleSnacksTime').textContent = snacks.time || '-';
-            document.getElementById('scheduleSnacksDesc').textContent = snacks.description || '-';
+            setText('scheduleSnacksAvailable', snacks.available ? 'Yes' : 'No');
+            setText('scheduleSnacksTime', snacks.time || '-');
+            setText('scheduleSnacksDesc', snacks.description || '-');
+
+            const overallRating = Number(mess.overallRating || 0);
+            const reviewCount = Number(mess.totalReviews || 0);
 
             // Update ratings
-            document.getElementById('messRating').textContent = `★ ${mess.overallRating.toFixed(1)}/5`;
-            document.getElementById('reviewCount').textContent = `${mess.totalReviews} reviews`;
+            setText('messRating', renderStarText(overallRating));
+            setText('reviewCount', `${reviewCount} reviews`);
+            setText('overallRatingNum', overallRating.toFixed(1));
+            setText('heroOverallRating', overallRating.toFixed(1));
+            setText('heroReviewCount', `${reviewCount} reviews`);
 
             // Update rating bars
-            const foodBar = document.getElementById('foodQualityBar');
-            const hygieneBar = document.getElementById('hygieneBar');
-            const foodRatingText = document.getElementById('foodQualityRating');
-            const hygieneRatingText = document.getElementById('hygieneRating');
+            const foodRating = Number(mess.foodQualityRating || 0);
+            const hygieneRating = Number(mess.hygieneRating || 0);
+            setWidth('foodQualityBar', `${(foodRating / 5) * 100}%`);
+            setWidth('hygieneBar', `${(hygieneRating / 5) * 100}%`);
+            setText('foodQualityRating', `${foodRating.toFixed(1)}/5`);
+            setText('hygieneRating', `${hygieneRating.toFixed(1)}/5`);
 
-            if (foodBar) foodBar.style.width = `${(mess.foodQualityRating / 5) * 100}%`;
-            if (hygieneBar) hygieneBar.style.width = `${(mess.hygieneRating / 5) * 100}%`;
-            if (foodRatingText) foodRatingText.textContent = `${mess.foodQualityRating.toFixed(1)}/5`;
-            if (hygieneRatingText) hygieneRatingText.textContent = `${mess.hygieneRating.toFixed(1)}/5`;
+            if (typeof window.refreshRevealElements === 'function') {
+                window.refreshRevealElements();
+            }
         } else {
-            window.location.href = 'messes.html';
+            showDetailsError('Unable to load this mess right now');
         }
     } catch (error) {
         console.error('Error loading mess details:', error);
+        showDetailsError('Failed to load mess details');
     }
 }
 
@@ -100,6 +157,8 @@ async function loadReviews() {
 
             const container = document.getElementById('reviewsContainer');
             const noReviews = document.getElementById('noReviewsMessage');
+
+            if (!container || !noReviews) return;
 
             if (reviews.length === 0) {
                 container.innerHTML = '';
@@ -163,12 +222,12 @@ function setupReviewForm() {
     }
 
     if (token) {
-        formContainer.style.display = 'block';
-        loginPrompt.style.display = 'none';
+        if (formContainer) formContainer.style.display = 'block';
+        if (loginPrompt) loginPrompt.style.display = 'none';
         setupStarRatings();
     } else {
-        formContainer.style.display = 'none';
-        loginPrompt.style.display = 'block';
+        if (formContainer) formContainer.style.display = 'none';
+        if (loginPrompt) loginPrompt.style.display = 'block';
     }
 
     const form = document.getElementById('reviewForm');
@@ -380,7 +439,7 @@ async function setupJoinButton() {
     const ownerDetailsCard = document.getElementById('ownerDetailsCard');
     const browseMode = getBrowseMode();
 
-    if (browseMode === 'review' || browseMode === 'join') {
+    if (browseMode === 'review') {
         if (joinContainer) joinContainer.style.display = 'none';
         if (ownerDetailsCard) ownerDetailsCard.style.display = 'none';
         return;
@@ -401,6 +460,10 @@ async function setupJoinButton() {
             joinButton.style.display = 'block';
             leaveButton.style.display = 'none';
             ownerDetailsCard.style.display = 'none';
+            // In search mode, make the CTA explicit: view owner details, then confirm.
+            if (browseMode === 'join') {
+                joinButton.textContent = 'View Owner Details & Confirm';
+            }
             joinButton.addEventListener('click', joinMessDirect);
         }
     } else {

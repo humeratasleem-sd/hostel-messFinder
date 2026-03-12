@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 /* ================================================
    HOSTEL MESS FINDER - PROFESSIONAL DESIGN SYSTEM
    ================================================ */
@@ -94,7 +96,7 @@ html {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: var(--font-size-base);
     line-height: 1.6;
     color: var(--text-color);
@@ -102,6 +104,8 @@ body {
     overflow-x: hidden;
     font-weight: 400;
     letter-spacing: 0.2px;
+    padding-top: 88px;
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 /* ===== TYPOGRAPHY ===== */
@@ -181,7 +185,8 @@ a:hover {
     padding: 10px 24px;
     border: none;
     border-radius: 10px;
-    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
     font-size: 1rem;
     cursor: pointer;
     transition: all var(--transition-base);
@@ -213,7 +218,7 @@ a:hover {
     color: white;
     box-shadow: var(--shadow-md);
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 500;
 }
 
 .btn-primary:hover {
@@ -234,7 +239,7 @@ a:hover {
     background: var(--secondary);
     color: white;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 500;
     transition: all var(--transition-base);
 }
 
@@ -252,7 +257,7 @@ a:hover {
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 500;
     box-shadow: var(--shadow-md);
     transition: all var(--transition-base);
 }
@@ -272,7 +277,7 @@ a:hover {
     color: var(--primary);
     background: transparent;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 500;
     transition: all var(--transition-base);
 }
 
@@ -1054,13 +1059,42 @@ textarea {
 .mess-container {
     display: grid;
     grid-template-columns: 280px 1fr;
+    grid-template-areas:
+        "search search"
+        "filters content";
     gap: var(--spacing-xl);
     padding: var(--spacing-xl) 0;
     max-width: 1400px;
     margin: 0 auto;
 }
 
+.search-top-bar {
+    grid-area: search;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.search-top-bar label {
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+.search-top-bar input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-white);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
 .filters-sidebar {
+    grid-area: filters;
     background: var(--bg-white);
     padding: var(--spacing-lg);
     border-radius: 12px;
@@ -1108,6 +1142,7 @@ textarea {
 }
 
 .messes-content {
+    grid-area: content;
     background: var(--bg-white);
     border-radius: 12px;
     padding: var(--spacing-lg);
@@ -1441,4 +1476,427 @@ footer p {
 
 .animate-in {
     animation: fadeInUp 0.5s ease;
+}
+
+/* ===== PREMIUM UI OVERRIDES ===== */
+body {
+    background:
+        radial-gradient(circle at top left, rgba(255, 107, 53, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(46, 196, 182, 0.08), transparent 24%),
+        #fffdf9;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+    transition: background var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 20px 40px rgba(25, 40, 59, 0.12);
+    border-bottom-color: rgba(255, 255, 255, 0.45);
+}
+
+.navbar .container {
+    min-height: 88px;
+    padding: 14px var(--spacing-md);
+}
+
+.nav-links a {
+    position: relative;
+    font-weight: 600;
+    border-bottom: none;
+    padding-bottom: 8px;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ff6b35, #ff9f1c);
+    transition: width var(--transition-base);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    width: 100%;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: transform var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(25, 40, 59, 0.15);
+}
+
+.hero {
+    min-height: calc(90vh - 88px);
+    height: auto;
+    padding: 96px var(--spacing-md) 72px;
+    background: linear-gradient(-45deg, #ff6b35, #ff9f1c, #2ec4b6, #1e90ff);
+    background-size: 400% 400%;
+    animation: gradientMove 10s ease infinite;
+    overflow: hidden;
+}
+
+.hero::before {
+    background:
+        radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.22), transparent 24%),
+        radial-gradient(circle at 82% 75%, rgba(255, 255, 255, 0.18), transparent 26%),
+        linear-gradient(135deg, rgba(9, 14, 25, 0.15), rgba(9, 14, 25, 0.35));
+}
+
+.hero-content {
+    max-width: 920px;
+}
+
+.hero h2 {
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -1.8px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    max-width: 760px;
+    margin: 0 auto 28px;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.92rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 22px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary,
+.btn-success,
+.btn-box {
+    background: linear-gradient(45deg, #ff6b35, #ff9f1c);
+    box-shadow: 0 12px 28px rgba(255, 107, 53, 0.28);
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 32px rgba(255, 107, 53, 0.42);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #2ec4b6, #1e90ff);
+    box-shadow: 0 12px 28px rgba(30, 144, 255, 0.22);
+}
+
+.btn-outline {
+    border-radius: 30px;
+}
+
+.features,
+.how-it-works,
+.stats,
+.cta {
+    position: relative;
+}
+
+.section-title {
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    margin-bottom: 22px;
+}
+
+.feature-card,
+.step,
+.stat-card,
+.card,
+.profile-card,
+.messes-content,
+.intent-card {
+    border-radius: 24px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.steps-grid,
+.messes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.filters-sidebar,
+.filter-box {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filters-sidebar:hover,
+.filter-box:hover {
+    transform: scale(1.02);
+    box-shadow: 0 22px 38px rgba(15, 23, 42, 0.12);
+}
+
+.filters-sidebar {
+    top: 108px;
+}
+
+.messes-content {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.mess-card {
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: 0.4s ease;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.mess-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.15);
+}
+
+.mess-card-media {
+    position: relative;
+    height: 210px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(30, 144, 255, 0.9));
+}
+
+.mess-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.4s;
+}
+
+.mess-card:hover img {
+    transform: scale(1.1);
+}
+
+.mess-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10, 14, 24, 0.65), transparent 55%);
+}
+
+.mess-card-header {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    z-index: 2;
+}
+
+.mess-card-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.mess-card-subtitle {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.mess-card-body {
+    padding: 22px;
+}
+
+.mess-card-location,
+.mess-card-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.mess-card-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255, 107, 53, 0.09);
+    color: #a9471c;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.mess-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.mess-card-actions .btn {
+    flex: 1;
+    min-width: 130px;
+}
+
+.rating-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(45deg, #ff6b35, #ff9f1c);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 30px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 3;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: 1s ease;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+body.dark {
+    background: #121212;
+    color: #ffffff;
+}
+
+body.dark .navbar {
+    background: rgba(18, 18, 18, 0.7);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark .navbar.scrolled {
+    background: rgba(18, 18, 18, 0.94);
+}
+
+body.dark .nav-links a,
+body.dark .theme-toggle,
+body.dark .section-title,
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark label {
+    color: #f5f5f5;
+}
+
+body.dark .mess-card,
+body.dark .feature-card,
+body.dark .step,
+body.dark .search-top-bar,
+body.dark .filters-sidebar,
+body.dark .messes-content,
+body.dark .intent-card,
+body.dark .card,
+body.dark .profile-card,
+body.dark .dashboard-sidebar,
+body.dark .dashboard-content,
+body.dark .stat-card {
+    background: #1e1e1e;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark p,
+body.dark .feature-card p,
+body.dark .step p,
+body.dark .stat p,
+body.dark .filter-group label,
+body.dark .mess-card-subtitle,
+body.dark .mess-card-chip {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+    background: #161616;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .search-top-bar input {
+    background: #161616;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark footer,
+body.dark .features,
+body.dark .cta,
+body.dark .how-it-works {
+    background: transparent;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }

@@ -96,7 +96,7 @@ function displayListingDetails() {
     `;
 }
 
-function switchTab(tabName) {
+function switchTab(tabName, buttonEl) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -107,7 +107,9 @@ function switchTab(tabName) {
 
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+    if (buttonEl) {
+        buttonEl.classList.add('active');
+    }
 }
 
 function editListing() {

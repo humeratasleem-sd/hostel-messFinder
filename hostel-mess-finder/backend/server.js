@@ -18,34 +18,7 @@ connectDatabase();
 
 // Middleware
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests from:
-    // 1. Same origin (when frontend is served from backend)
-    // 2. Common localhost ports
-    // 3. 127.0.0.1 aliases
-    // 4. No origin (for same-origin requests and mobile apps)
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5000',
-      'http://localhost:5173',
-      'http://localhost:8000',
-      'http://localhost:8080',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:5000',
-      'http://127.0.0.1:5173',
-      'http://127.0.0.1:8000',
-      'http://127.0.0.1:8080'
-    ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else if (process.env.NODE_ENV === 'development') {
-      // Allow all origins in development
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://localhost:8000', 'http://127.0.0.1:8000'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -93,7 +66,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\n✓ Server running on http://localhost:${PORT}`);
-  console.log(` Environment: ${process.env.NODE_ENV || 'development'}\n`);
+  console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
 module.exports = app;

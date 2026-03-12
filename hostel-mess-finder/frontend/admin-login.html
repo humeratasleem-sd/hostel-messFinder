@@ -72,7 +72,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:5000/api/auth/login', {
+                const response = await fetch('http://localhost:5000/api/auth/admin-login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -86,15 +86,9 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Verify the user is actually an admin
-                    if (data.user.role !== 'admin') {
-                        showError('This account is not an admin account. Please use the regular login.');
-                        return;
-                    }
-                    
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.setItem('userType', data.user.role);
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('admin', JSON.stringify(data.admin));
+                    localStorage.setItem('userType', 'admin');
                     
                     document.getElementById('successMessage').innerHTML = 'Admin login successful! Redirecting...';
                     setTimeout(() => {
@@ -104,8 +98,7 @@
                     showError(data.message || 'Admin login failed');
                 }
             } catch (error) {
-                console.error('Admin login error:', error);
-                showError('Failed to connect to server. Please make sure the backend is running on port 5000.');
+                showError('Error during admin login: ' + error.message);
             }
         });
 
@@ -115,9 +108,8 @@
 
         // Check if already logged in
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            const userType = localStorage.getItem('userType');
-            if (token && userType === 'admin') {
+            const adminToken = localStorage.getItem('adminToken');
+            if (adminToken) {
                 window.location.href = 'admin-dashboard.html';
             }
         });

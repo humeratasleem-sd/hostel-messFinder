@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hostel Mess Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-orange: #ff7a1a;
+            --brand-red: #ff3d3d;
+            --text-light: #f7f8fc;
+            --muted-light: rgba(247, 248, 252, 0.82);
+            --card-bg: rgba(13, 18, 30, 0.38);
+            --card-border: rgba(255, 255, 255, 0.24);
+            --input-bg: rgba(255, 255, 255, 0.14);
+            --input-border: rgba(255, 255, 255, 0.22);
+            --input-focus: rgba(255, 122, 26, 0.8);
+            --shadow-heavy: 0 25px 60px rgba(5, 8, 17, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-light);
+            position: relative;
+            overflow-x: hidden;
+            background: #0d1019;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(9, 14, 26, 0.82), rgba(18, 9, 5, 0.5)),
+                url('images/food-bg.jpg') center/cover no-repeat;
+            z-index: -3;
+            transform: scale(1.05);
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 122, 26, 0.33), transparent 42%),
+                radial-gradient(circle at 82% 75%, rgba(255, 61, 61, 0.28), transparent 44%);
+            z-index: -2;
+            animation: ambientPulse 9s ease-in-out infinite;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            backdrop-filter: blur(12px);
+            background: rgba(6, 10, 18, 0.38);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand span {
+            background: linear-gradient(135deg, #ffa047, #ff4b4b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--muted-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.25s ease;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .auth-stage {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 110px 18px 30px;
+        }
+
+        .login-card {
+            width: min(430px, 100%);
+            border-radius: 26px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: var(--shadow-heavy);
+            padding: 28px;
+            animation: fadeFloatIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), cardFloat 6s ease-in-out 1s infinite;
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            color: #fff;
+            font-size: 0.78rem;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            line-height: 1.25;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--muted-light);
+            margin-bottom: 22px;
+        }
+
+        .field {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .field input {
+            width: 100%;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: #fff;
+            border-radius: 13px;
+            height: 54px;
+            padding: 18px 14px 0 44px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, transform 0.2s ease;
+        }
+
+        .field input:hover {
+            border-color: rgba(255, 255, 255, 0.48);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .field input:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .field label {
+            position: absolute;
+            left: 44px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.75);
+            pointer-events: none;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .field input:focus + label,
+        .field input:not(:placeholder-shown) + label {
+            top: 10px;
+            transform: none;
+            font-size: 0.73rem;
+            color: #ffd2aa;
+            letter-spacing: 0.2px;
+        }
+
+        .field svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            fill: rgba(255, 255, 255, 0.74);
+            pointer-events: none;
+            transition: fill 0.2s ease;
+        }
+
+        .field input:focus ~ svg {
+            fill: #ffc284;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.4px;
+            background: linear-gradient(135deg, #ff9928, #ff4a3c);
+            box-shadow: 0 12px 24px rgba(255, 74, 60, 0.34);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+            margin-top: 6px;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 60%;
+            height: 100%;
+            transform: skewX(-22deg);
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.32), transparent);
+            transition: left 0.55s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 18px 34px rgba(255, 74, 60, 0.45), 0 0 18px rgba(255, 153, 40, 0.46);
+            filter: saturate(1.08);
+        }
+
+        .login-btn:hover::before {
+            left: 155%;
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px) scale(0.995);
+        }
+
+        .errorMessage,
+        .successMessage {
+            min-height: 20px;
+            margin: 8px 0 6px;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .errorMessage {
+            color: #ffb7b7;
+        }
+
+        .successMessage {
+            color: #bafad2;
+        }
+
+        .help-row {
+            margin-top: 16px;
+            color: var(--muted-light);
+            font-size: 0.88rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .help-row a {
+            color: #ffd19e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .help-row a:hover {
+            color: #ffffff;
+        }
+
+        @keyframes fadeFloatIn {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes cardFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes ambientPulse {
+            0%, 100% {
+                opacity: 0.85;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .top-nav {
+                padding: 12px 14px;
+            }
+
+            .brand {
+                font-size: 1.02rem;
+            }
+
+            .nav-links {
+                gap: 10px;
+                font-size: 0.85rem;
+            }
+
+            .login-card {
+                padding: 20px 16px;
+                border-radius: 18px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a class="brand" href="index.html">Hostel <span>Mess Finder</span></a>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="messes.html">Browse</a>
+            <a href="register.html">Register</a>
+        </div>
+    </nav>
+
+    <main class="auth-stage">
+        <section class="login-card">
+            <div class="kicker">Food-tech student login</div>
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to explore top hostel messes, reviews, and pricing near your campus.</p>
+
+            <form id="directLoginForm">
+                <div class="field">
+                    <input type="email" id="login-email" name="email" required placeholder=" ">
+                    <label for="login-email">Email Address</label>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-.8 2L12 10.5 4.8 6h14.4zM4 18V8.2l7.47 4.67c.33.21.75.21 1.06 0L20 8.2V18H4z"/></svg>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="login-password" name="password" required placeholder=" ">
+                    <label for="login-password">Password</label>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 8h-1V6a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm-6 8.73V18a1 1 0 0 0 2 0v-1.27a2 2 0 1 0-2 0zM10 8V6a2 2 0 0 1 4 0v2h-4z"/></svg>
+                </div>
+
+                <div id="loginErrorMessage" class="errorMessage"></div>
+                <div id="loginSuccessMessage" class="successMessage"></div>
+
+                <button type="submit" class="login-btn">Login to Dashboard</button>
+            </form>
+
+            <div class="help-row">
+                <span>New here? <a href="register.html">Create account</a></span>
+                <span><a href="index.html">Back to Home</a></span>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const loginForm = document.getElementById('directLoginForm');
+        const errorDiv = document.getElementById('loginErrorMessage');
+        const successDiv = document.getElementById('loginSuccessMessage');
+
+        function normalizeUserType(role) {
+            if (role === 'hostel_owner') return 'owner';
+            return role || 'student';
+        }
+
+        function getRedirectPath(userType) {
+            if (userType === 'admin') return 'admin-dashboard.html';
+            if (userType === 'owner') return 'owner-dashboard.html';
+            return 'dashboard.html';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            errorDiv.textContent = '';
+            successDiv.textContent = '';
+
+            if (!email || !password) {
+                errorDiv.textContent = 'Email and password are required';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    errorDiv.textContent = data.message || 'Login failed';
+                    return;
+                }
+
+                const userType = normalizeUserType(data.user?.role);
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('userType', userType);
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('admin');
+                localStorage.removeItem('browseMode');
+
+                successDiv.textContent = 'Login successful! Redirecting...';
+
+                setTimeout(() => {
+                    window.location.href = getRedirectPath(userType);
+                }, 800);
+            } catch (error) {
+                errorDiv.textContent = 'Error during login: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

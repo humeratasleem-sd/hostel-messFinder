@@ -1,0 +1,25 @@
+<!-- Image Placeholder - Replace with actual food image -->
+<!-- This file indicates that food-bg.jpg should contain a professional food/mess photo -->
+<!-- The image is used as background for:
+1. Hero Section - Main banner at top
+2. Features Section - Behind feature cards
+3. How It Works - Behind step cards
+4. Stats Section - Behind statistics
+5. Page footer accent
+
+Image Requirements:
+- Format: JPG or PNG
+- Minimum Width: 1920px
+- Minimum Height: 1080px
+- File Size: < 500KB (optimized)
+- Content: Professional food/meal photography
+- Color: Warm, appetizing tones that work with overlay
+- Subject: Indian cuisine, mess food, or restaurant setting
+
+Current usage in CSS:
+- background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/food-bg.jpg');
+- background-size: cover;
+- background-position: center;
+- background-attachment: fixed;
+
+The image is overlaid with a dark semi-transparent gradient to ensure text readability in dark mode.

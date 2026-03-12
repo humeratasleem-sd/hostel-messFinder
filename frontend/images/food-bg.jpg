@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html><body style='margin:0;background:linear-gradient(135deg,#ff6b6b,#feca57);display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial'>
+<div style='text-align:center;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.5)'>
+<h1 style='font-size:4em;margin:0'></h1>
+<p style='font-size:2em;margin:10px'>Delicious Food</p>
+</div></body></html>

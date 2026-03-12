@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Hostel Mess Finder</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .debug-box { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        pre { background: #333; color: #0f0; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Debugging Hostel Mess Finder</h1>
+    
+    <div class="debug-box">
+        <h2>1. Backend Status</h2>
+        <div id="backendStatus">Checking...</div>
+    </div>
+
+    <div class="debug-box">
+        <h2>2. Frontend Configuration</h2>
+        <div id="config">Checking...</div>
+    </div>
+
+    <div class="debug-box">
+        <h2>3. API Response</h2>
+        <div id="apiResponse">Checking...</div>
+    </div>
+
+    <div class="debug-box">
+        <h2>4. Messes Data</h2>
+        <div id="messesData">Loading...</div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+
+        async function debug() {
+            // 1. Check backend
+            try {
+                const health = await fetch('http://localhost:5000/api/health');
+                const healthData = await health.json();
+                document.getElementById('backendStatus').innerHTML = 
+                    '<span class="success">✓ Backend is running</span><br>' +
+                    '<pre>' + JSON.stringify(healthData, null, 2) + '</pre>';
+            } catch (e) {
+                document.getElementById('backendStatus').innerHTML = 
+                    '<span class="error">✗ Backend not responding: ' + e.message + '</span>';
+            }
+
+            // 2. Config
+            document.getElementById('config').innerHTML = 
+                '<strong>API_BASE_URL:</strong> ' + API_BASE_URL;
+
+            // 3. Check API Response
+            try {
+                const response = await fetch(API_BASE_URL + '/messes');
+                const data = await response.json();
+                document.getElementById('apiResponse').innerHTML = 
+                    '<span class="success">✓ API responding</span><br>' +
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // 4. Show messes
+                if (data.data && data.data.length > 0) {
+                    let html = '<span class="success">✓ ' + data.data.length + ' messes found</span><br>';
+                    data.data.forEach(mess => {
+                        html += '<div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0;">' +
+                                '<strong>' + mess.name + '</strong><br>' +
+                                'Location: ' + mess.location + '<br>' +
+                                'Price: ₹' + mess.monthlyPrice + '/month' +
+                                '</div>';
+                    });
+                    document.getElementById('messesData').innerHTML = html;
+                } else {
+                    document.getElementById('messesData').innerHTML = 
+                        '<span class="error">✗ No messes found in database</span>';
+                }
+            } catch (e) {
+                document.getElementById('apiResponse').innerHTML = 
+                    '<span class="error">✗ API error: ' + e.message + '</span>';
+                document.getElementById('messesData').innerHTML = 
+                    '<span class="error">✗ Cannot load messes</span>';
+            }
+        }
+
+        debug();
+    </script>
+</body>
+</html>

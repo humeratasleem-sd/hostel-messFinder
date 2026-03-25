@@ -52,7 +52,20 @@ exports.getUserReviews = async (req, res) => {
 // @access  Private
 exports.createReview = async (req, res) => {
   try {
-    const { messId, rating, hygieneRating, foodQualityRating, review, quantity, foodImage, voiceNote } = req.body;
+    const {
+      messId,
+      rating,
+      hygieneRating,
+      foodQualityRating,
+      staffBehaviorRating,
+      valueForMoneyRating,
+      diningAreaCleanlinessRating,
+      timelinessRating,
+      review,
+      quantity,
+      foodImage,
+      voiceNote
+    } = req.body;
 
     // Validation
     if (!messId || !rating || !review) {
@@ -91,6 +104,10 @@ exports.createReview = async (req, res) => {
       rating,
       hygieneRating: hygieneRating || rating,
       foodQualityRating: foodQualityRating || rating,
+      staffBehaviorRating: staffBehaviorRating || rating,
+      valueForMoneyRating: valueForMoneyRating || rating,
+      diningAreaCleanlinessRating: diningAreaCleanlinessRating || rating,
+      timelinessRating: timelinessRating || rating,
       review,
       quantity: quantity || 'unlimited',
       foodImage: foodImage || null,

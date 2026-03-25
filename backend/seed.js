@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hostel-mess-finder');
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Testuser:Naseem996@cluster0.zewmraj.mongodb.net/Hostel_Mess_Finder');
         console.log('MongoDB connected');
     } catch (error) {
         console.error('MongoDB connection error:', error);

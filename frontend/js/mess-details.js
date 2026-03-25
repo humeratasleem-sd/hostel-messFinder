@@ -181,6 +181,14 @@ function createReviewHTML(review) {
             <source src="${review.voiceNote}">
         </audio>
     ` : '';
+    const categoryRatings = `
+        <div class="review-subratings" style="margin: 10px 0; color: #5b6470; font-size: 0.92rem; line-height: 1.55;">
+            <div>😊 Staff Behavior: <strong>${review.staffBehaviorRating || '-'}/5</strong></div>
+            <div>💰 Value for Money: <strong>${review.valueForMoneyRating || '-'}/5</strong></div>
+            <div>🪑 Dining Area Cleanliness: <strong>${review.diningAreaCleanlinessRating || '-'}/5</strong></div>
+            <div>⏱️ Timeliness: <strong>${review.timelinessRating || '-'}/5</strong></div>
+        </div>
+    `;
     
     return `
         <div class="review-item">
@@ -192,6 +200,7 @@ function createReviewHTML(review) {
                 <span class="review-date">${new Date(review.createdAt).toLocaleDateString()}</span>
             </div>
             <div class="review-rating">★ ${review.rating}/5 ${quantity}</div>
+            ${categoryRatings}
             <div class="review-text">${review.review}</div>
             ${foodImage}
             ${voiceNote}
@@ -279,16 +288,22 @@ function setupReviewForm() {
 }
 
 function setupStarRatings() {
-    const ratings = ['mainRating', 'foodRating', 'hygieneRatingForm'];
+    const ratingGroups = [
+        { containerId: 'mainRating', inputId: 'ratingInput' },
+        { containerId: 'foodRating', inputId: 'foodRatingInput' },
+        { containerId: 'hygieneRatingForm', inputId: 'hygieneRatingInput' },
+        { containerId: 'staffBehaviorRatingForm', inputId: 'staffBehaviorRatingInput' },
+        { containerId: 'valueForMoneyRatingForm', inputId: 'valueForMoneyRatingInput' },
+        { containerId: 'diningAreaCleanlinessRatingForm', inputId: 'diningAreaCleanlinessRatingInput' },
+        { containerId: 'timelinessRatingForm', inputId: 'timelinessRatingInput' }
+    ];
 
-    ratings.forEach(ratingId => {
-        const container = document.getElementById(ratingId);
+    ratingGroups.forEach(group => {
+        const container = document.getElementById(group.containerId);
         if (!container) return;
 
         const stars = container.querySelectorAll('.star');
-        const inputId = ratingId === 'mainRating' ? 'ratingInput' : 
-                       ratingId === 'foodRating' ? 'foodRatingInput' : 
-                       'hygieneRatingInput';
+        const inputId = group.inputId;
 
         stars.forEach(star => {
             star.addEventListener('click', () => {
@@ -328,13 +343,17 @@ async function submitReview(e) {
     const rating = parseInt(document.getElementById('ratingInput').value);
     const hygieneRating = parseInt(document.getElementById('hygieneRatingInput').value);
     const foodQualityRating = parseInt(document.getElementById('foodRatingInput').value);
+    const staffBehaviorRating = parseInt(document.getElementById('staffBehaviorRatingInput').value);
+    const valueForMoneyRating = parseInt(document.getElementById('valueForMoneyRatingInput').value);
+    const diningAreaCleanlinessRating = parseInt(document.getElementById('diningAreaCleanlinessRatingInput').value);
+    const timelinessRating = parseInt(document.getElementById('timelinessRatingInput').value);
     const review = document.getElementById('reviewText').value.trim();
     const quantity = document.getElementById('quantitySelect').value;
     const foodImageFile = document.getElementById('foodImage').files[0];
     const voiceFile = document.getElementById('voiceNote').files[0];
 
-    if (!rating || !review || !quantity) {
-        document.getElementById('reviewErrorMessage').textContent = 'Please provide a rating, review, and select quantity';
+    if (!rating || !review || !quantity || !staffBehaviorRating || !valueForMoneyRating || !diningAreaCleanlinessRating || !timelinessRating) {
+        document.getElementById('reviewErrorMessage').textContent = 'Please fill all required ratings, review text, and quantity';
         return;
     }
 
@@ -366,6 +385,10 @@ async function submitReview(e) {
                 rating,
                 hygieneRating: hygieneRating || rating,
                 foodQualityRating: foodQualityRating || rating,
+                staffBehaviorRating,
+                valueForMoneyRating,
+                diningAreaCleanlinessRating,
+                timelinessRating,
                 review,
                 quantity,
                 foodImage,
@@ -380,6 +403,10 @@ async function submitReview(e) {
             document.getElementById('ratingInput').value = '0';
             document.getElementById('hygieneRatingInput').value = '0';
             document.getElementById('foodRatingInput').value = '0';
+            document.getElementById('staffBehaviorRatingInput').value = '0';
+            document.getElementById('valueForMoneyRatingInput').value = '0';
+            document.getElementById('diningAreaCleanlinessRatingInput').value = '0';
+            document.getElementById('timelinessRatingInput').value = '0';
             document.getElementById('quantitySelect').value = '';
             document.getElementById('reviewErrorMessage').textContent = '';
             document.getElementById('imagePreviewContainer').style.display = 'none';

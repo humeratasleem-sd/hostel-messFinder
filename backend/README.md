@@ -1,4 +1,4 @@
-# Hostel Mess Finder - Backend API
+# Hostel Mess Finder - Backend api
 
 ## Quick Start
 

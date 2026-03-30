@@ -3,6 +3,7 @@
     const loginForm = document.getElementById('directLoginForm');
     const errorDiv = document.getElementById('loginErrorMessage');
     const successDiv = document.getElementById('loginSuccessMessage');
+    console.log("API_BASE_URL:", API_BASE_URL);
 
     function normalizeUserType(role) {
         if (role === 'hostel_owner') return 'owner';

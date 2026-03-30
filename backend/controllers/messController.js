@@ -1,6 +1,6 @@
 const Mess = require('../models/Mess');
 
-// @desc    Get all messes
+// @desc    Get all messes (for students/public)
 // @route   GET /api/messes
 // @access  Public
 exports.getAllMesses = async (req, res) => {
@@ -30,17 +30,51 @@ exports.getAllMesses = async (req, res) => {
       filter.overallRating = { $gte: Number(ratingMin) };
     }
 
+    console.log('getAllMesses - Filter:', filter);
     const messes = await Mess.find(filter).populate('ownerId', 'name email phone').sort({ createdAt: -1 });
 
+    console.log(`getAllMesses - Found ${messes.length} messes`);
     res.status(200).json({
       success: true,
       count: messes.length,
       data: messes
     });
   } catch (error) {
+    console.error('getAllMesses - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error fetching messes',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get owner's mess
+// @route   GET /api/messes/owner/my-mess
+// @access  Private (Owner only)
+exports.getOwnerMess = async (req, res) => {
+  try {
+    console.log('getOwnerMess - Looking for mess with ownerId:', req.userId);
+    const mess = await Mess.findOne({ ownerId: req.userId }).populate('ownerId', 'name email phone');
+    
+    if (!mess) {
+      console.warn('getOwnerMess - No mess found for owner:', req.userId);
+      return res.status(404).json({
+        success: false,
+        message: 'No mess found. Please create a mess first.'
+      });
+    }
+    
+    console.log('getOwnerMess - Found mess:', mess._id);
+    res.status(200).json({
+      success: true,
+      data: mess
+    });
+  } catch (error) {
+    console.error('getOwnerMess - Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching mess',
       error: error.message
     });
   }
@@ -51,20 +85,24 @@ exports.getAllMesses = async (req, res) => {
 // @access  Public
 exports.getMessById = async (req, res) => {
   try {
+    console.log('getMessById - Fetching mess:', req.params.id);
     const mess = await Mess.findById(req.params.id).populate('ownerId', 'name email phone');
 
     if (!mess) {
+      console.warn('getMessById - Mess not found:', req.params.id);
       return res.status(404).json({
         success: false,
         message: 'Mess not found'
       });
     }
 
+    console.log('getMessById - Mess found:', mess._id);
     res.status(200).json({
       success: true,
       data: mess
     });
   } catch (error) {
+    console.error('getMessById - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error fetching mess',
@@ -79,6 +117,19 @@ exports.getMessById = async (req, res) => {
 exports.createMess = async (req, res) => {
   try {
     const { name, location, address, monthlyPrice, foodType, description, phoneNumber, website, capacity, facilities, foodSchedule } = req.body;
+
+    console.log('createMess - Creating mess for user:', req.userId);
+    console.log('createMess - Data:', { name, location, monthlyPrice, foodType });
+
+    // Verify user is a hostel owner
+    const User = require('../models/User');
+    const user = await User.findById(req.userId).select('role');
+    if (!user || user.role !== 'hostel_owner') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only hostel owners can create a mess listing'
+      });
+    }
 
     if (!name || !location || monthlyPrice === undefined) {
       return res.status(400).json({
@@ -115,17 +166,21 @@ exports.createMess = async (req, res) => {
       messData.foodSchedule = foodSchedule;
     }
 
+    console.log('createMess - messData ownerId:', messData.ownerId);
     const mess = await Mess.create(messData);
 
+    console.log('createMess - Mess created with ID:', mess._id);
+
     // Update user with messOwnedId
-    const User = require('../models/User');
     await User.findByIdAndUpdate(req.userId, { messOwnedId: mess._id });
 
+    console.log('createMess - Successfully created mess');
     res.status(201).json({
       success: true,
       data: mess
     });
   } catch (error) {
+    console.error('createMess - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error creating mess',
@@ -136,14 +191,12 @@ exports.createMess = async (req, res) => {
 
 // @desc    Update mess
 // @route   PUT /api/messes/:id
-// @access  Private (Admin only)
+// @access  Private (Owner only)
 exports.updateMess = async (req, res) => {
   try {
-    const mess = await Mess.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    console.log('updateMess - Updating mess:', req.params.id, 'by user:', req.userId);
+    
+    const mess = await Mess.findById(req.params.id);
 
     if (!mess) {
       return res.status(404).json({
@@ -152,11 +205,27 @@ exports.updateMess = async (req, res) => {
       });
     }
 
+    // Verify ownership
+    if (mess.ownerId.toString() !== req.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to update this mess'
+      });
+    }
+
+    const updatedMess = await Mess.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    console.log('updateMess - Successfully updated mess:', req.params.id);
     res.status(200).json({
       success: true,
-      data: mess
+      data: updatedMess
     });
   } catch (error) {
+    console.error('updateMess - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error updating mess',
@@ -167,10 +236,12 @@ exports.updateMess = async (req, res) => {
 
 // @desc    Delete mess
 // @route   DELETE /api/messes/:id
-// @access  Private (Admin only)
+// @access  Private (Owner only)
 exports.deleteMess = async (req, res) => {
   try {
-    const mess = await Mess.findByIdAndDelete(req.params.id);
+    console.log('deleteMess - Deleting mess:', req.params.id, 'by user:', req.userId);
+    
+    const mess = await Mess.findById(req.params.id);
 
     if (!mess) {
       return res.status(404).json({
@@ -179,11 +250,27 @@ exports.deleteMess = async (req, res) => {
       });
     }
 
+    // Verify ownership
+    if (mess.ownerId.toString() !== req.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to delete this mess'
+      });
+    }
+
+    await Mess.findByIdAndDelete(req.params.id);
+
+    // Update user record
+    const User = require('../models/User');
+    await User.findByIdAndUpdate(req.userId, { messOwnedId: null });
+
+    console.log('deleteMess - Successfully deleted mess:', req.params.id);
     res.status(200).json({
       success: true,
       message: 'Mess deleted successfully'
     });
   } catch (error) {
+    console.error('deleteMess - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error deleting mess',
@@ -198,6 +285,8 @@ exports.deleteMess = async (req, res) => {
 exports.getNearbyMesses = async (req, res) => {
   try {
     const { latitude, longitude, distance } = req.query;
+    
+    console.log('getNearbyMesses - Query:', { latitude, longitude, distance });
     
     if (!latitude || !longitude) {
       return res.status(400).json({
@@ -221,12 +310,14 @@ exports.getNearbyMesses = async (req, res) => {
       }
     }).sort({ createdAt: -1 });
 
+    console.log('getNearbyMesses - Found', messes.length, 'messes');
     res.status(200).json({
       success: true,
       count: messes.length,
       data: messes
     });
   } catch (error) {
+    console.error('getNearbyMesses - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error fetching nearby messes',
@@ -241,17 +332,20 @@ exports.getNearbyMesses = async (req, res) => {
 exports.compareMesses = async (req, res) => {
   try {
     const { id1, id2 } = req.params;
+    console.log('compareMesses - Comparing messes:', { id1, id2 });
 
     const mess1 = await Mess.findById(id1);
     const mess2 = await Mess.findById(id2);
 
     if (!mess1 || !mess2) {
+      console.warn('compareMesses - One or both messes not found');
       return res.status(404).json({
         success: false,
         message: 'One or both messes not found'
       });
     }
 
+    console.log('compareMesses - Both messes found');
     res.status(200).json({
       success: true,
       data: {
@@ -260,6 +354,7 @@ exports.compareMesses = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('compareMesses - Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error comparing messes',

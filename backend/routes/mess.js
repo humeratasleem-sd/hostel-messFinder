@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getAllMesses,
   getMessById,
+  getOwnerMess,
   createMess,
   updateMess,
   deleteMess,
@@ -13,42 +14,27 @@ const {
 } = require('../controllers/messController');
 const { protect } = require('../middleware/auth');
 
-// Public routes
+// ===== PUBLIC ROUTES =====
 router.get('/', getAllMesses);
+
+// ===== SPECIFIC ROUTES (must come before :id) =====
 router.get('/nearby', getNearbyMesses);
 router.get('/compare/:id1/:id2', compareMesses);
 
-// Protected routes
-router.get('/owner/my-mess', protect, async (req, res) => {
-  try {
-    const Mess = require('../models/Mess');
-    const mess = await Mess.findOne({ ownerId: req.userId });
-    
-    if (!mess) {
-      return res.status(404).json({
-        success: false,
-        message: 'No mess found'
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      data: mess
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching mess',
-      error: error.message
-    });
-  }
-});
+// ===== PROTECTED ROUTES =====
+// Owner routes
+router.get('/owner/my-mess', protect, getOwnerMess);
 
-router.get('/:id', getMessById);
+// Student routes
 router.post('/:id/join', protect, joinMess);
 router.post('/:id/leave', protect, leaveMess);
+
+// Mess management (owner only)
 router.post('/', protect, createMess);
 router.put('/:id', protect, updateMess);
 router.delete('/:id', protect, deleteMess);
+
+// ===== GENERIC ROUTE (must be last) =====
+router.get('/:id', getMessById);
 
 module.exports = router;

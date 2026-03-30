@@ -20,11 +20,11 @@ function getUserLocation() {
                     longitude: position.coords.longitude,
                     accuracy: position.coords.accuracy
                 };
-                console.log('📍 Location found:', userLocation);
+                console.log('Location found:', userLocation);
                 resolve(userLocation);
             },
             (error) => {
-                console.error('📍 Location error:', error);
+                console.error('Location error:', error);
                 reject(error);
             }
         );
@@ -48,7 +48,7 @@ async function loadNearbyMesses(distance = 5) {
         if (response.ok) {
             const data = await response.json();
             nearbyMesses = data.data || [];
-            console.log('🏠 Nearby messes loaded:', nearbyMesses.length);
+            console.log('Nearby messes loaded:', nearbyMesses.length);
             return nearbyMesses;
         }
     } catch (error) {
@@ -76,7 +76,7 @@ function displayLocationOnMap(mapElementId) {
 
     mapElement.innerHTML = `
         <div class="location-info">
-            <p>📍 Your Location:</p>
+            <p>Your Location:</p>
             <p>Latitude: ${userLocation.latitude.toFixed(4)}</p>
             <p>Longitude: ${userLocation.longitude.toFixed(4)}</p>
             <p>Accuracy: ${Math.round(userLocation.accuracy)}m</p>

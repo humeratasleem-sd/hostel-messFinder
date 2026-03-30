@@ -51,21 +51,29 @@ function setupBrowseIntentGate() {
 
 async function loadMesses() {
     try {
+        console.log('loadMesses - Fetching messes from:', `${API_BASE_URL}/messes`);
         const response = await fetch(`${API_BASE_URL}/messes`, {
             headers: getAuthHeaders()
         });
 
+        console.log('loadMesses - Response status:', response.status);
+
         if (!response.ok) {
-            showErrorMessage('Failed to load messes');
+            console.error('loadMesses - Failed to load messes:', response.statusText);
+            showErrorMessage('Failed to load messes: ' + response.statusText);
             return;
         }
 
         const data = await response.json();
+        console.log('loadMesses - Received data:', data);
+        
         allMesses = data.data || [];
+        console.log('loadMesses - Total messes loaded:', allMesses.length);
+        
         filteredMesses = [...allMesses];
         renderMesses();
     } catch (error) {
-        console.error('Error loading messes:', error);
+        console.error('loadMesses - Error:', error);
         showErrorMessage('Error loading messes: ' + error.message);
     }
 }
@@ -132,9 +140,11 @@ function renderMesses() {
                     <span class="mess-card-chip">${mess.foodType}</span>
                     <span class="mess-card-chip">${mess.totalReviews || 0} reviews</span>
                 </div>
-                <div class="mess-card-info">
+                <div class="mess-card-info" style="font-size: 0.9em; margin: 10px 0;">
                     <p><strong>Rs ${mess.monthlyPrice}/month</strong></p>
-                    <p>${mess.phoneNumber || 'Contact at venue'}</p>
+                    <p style="margin-top: 8px;"><strong>Owner:</strong> ${mess.ownerId?.name || 'N/A'}</p>
+                    <p><strong>Contact:</strong> ${mess.ownerId?.phone || mess.phoneNumber || 'N/A'}</p>
+                    ${mess.ownerId?.email ? `<p><strong>Email:</strong> ${mess.ownerId.email}</p>` : ''}
                 </div>
                 <div class="mess-card-footer">
                     <span class="mess-rating">Quality | Hygiene | Value</span>

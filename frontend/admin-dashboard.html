@@ -477,7 +477,7 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>🍽️ Hostel Mess Finder - Admin</h1>
+                <h1>Hostel Mess Finder - Admin</h1>
             </div>
             <ul class="nav-links">
                 <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
@@ -487,32 +487,32 @@
     </nav>
 
     <div class="admin-container">
-        <h1>📊 Admin Dashboard</h1>
+        <h1>Admin Dashboard</h1>
         <p style="color: #666; margin-bottom: 30px;">Welcome, <span id="adminName">Admin</span> | Last updated: <span id="lastUpdated">-</span></p>
 
         <!-- Key Statistics -->
         <div class="stats-grid">
             <div class="stat-card stat-1">
-                <p>👥 Total Registrations</p>
+                <p>Total Registrations</p>
                 <h3 id="totalRegistrations">0</h3>
             </div>
             <div class="stat-card stat-2">
-                <p>📱 Total Logins</p>
+                <p>Total Logins</p>
                 <h3 id="totalLogins">0</h3>
             </div>
             <div class="stat-card stat-3">
-                <p>🏢 Total Messes</p>
+                <p>Total Messes</p>
                 <h3 id="totalMesses">0</h3>
             </div>
             <div class="stat-card stat-4">
-                <p>⭐ Total Reviews</p>
+                <p>Total Reviews</p>
                 <h3 id="totalReviews">0</h3>
             </div>
         </div>
 
         <!-- Login & User Session Details -->
         <div class="admin-section">
-            <h2>🔐 Login & Session Details</h2>
+            <h2>Login & Session Details</h2>
             <div class="login-meta-grid">
                 <div class="login-meta-card">
                     <p>Admin Last Login</p>
@@ -553,10 +553,10 @@
 
         <!-- Analytics Overview -->
         <div class="admin-section">
-            <h2>📈 Analytics Overview</h2>
+            <h2>Analytics Overview</h2>
             <div class="analytics-grid">
                 <div class="analytics-card">
-                    <h3>👤 User Analytics</h3>
+                    <h3>User Analytics</h3>
                     <div class="metric-item">
                         <span class="metric-label">Total Users:</span>
                         <span class="metric-value" id="analyticsTotal">0</span>
@@ -576,7 +576,7 @@
                 </div>
 
                 <div class="analytics-card">
-                    <h3>🏢 Mess Analytics</h3>
+                    <h3>Mess Analytics</h3>
                     <div class="metric-item">
                         <span class="metric-label">Total Messes:</span>
                         <span class="metric-value" id="messAnalyticsTotal">0</span>
@@ -596,7 +596,7 @@
                 </div>
 
                 <div class="analytics-card">
-                    <h3>⭐ Review Analytics</h3>
+                    <h3>Review Analytics</h3>
                     <div class="metric-item">
                         <span class="metric-label">Total Reviews:</span>
                         <span class="metric-value" id="reviewAnalyticsTotal">0</span>
@@ -619,7 +619,7 @@
 
         <!-- User Management -->
         <div class="admin-section">
-            <h2>👥 User Management</h2>
+            <h2>User Management</h2>
             <div style="margin-bottom: 15px;">
                 <label for="userFilter">Filter by Role: </label>
                 <select id="userFilter" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
@@ -650,7 +650,7 @@
 
         <!-- Mess Management -->
         <div class="admin-section">
-            <h2>🏢 Mess Management</h2>
+            <h2>Mess Management</h2>
             <table class="data-table" id="messesTable">
                 <thead>
                     <tr>
@@ -672,7 +672,7 @@
 
         <!-- Recent Reviews -->
         <div class="admin-section">
-            <h2>⭐ Recent Reviews</h2>
+            <h2>Recent Reviews</h2>
             <table class="data-table" id="reviewsTable">
                 <thead>
                     <tr>
@@ -697,7 +697,7 @@
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>👤 User Details</h2>
+                <h2>User Details</h2>
                 <button class="close-btn" onclick="closeUserModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -744,7 +744,7 @@
     <div id="reviewModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>⭐ Review Details</h2>
+                <h2>Review Details</h2>
                 <button class="close-btn" onclick="closeReviewModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -781,8 +781,8 @@
     <script src="js/auth.js"></script>
     <script>
         // Check if admin is logged in
-        const token = localStorage.getItem('token');
-        const admin = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
+        const admin = JSON.parse(localStorage.getItem('user') || localStorage.getItem('admin') || '{}');
         const userType = localStorage.getItem('userType');
         
         if (!token || userType !== 'admin') {
@@ -898,7 +898,7 @@
                     <td>${mess.name || '-'}</td>
                     <td>${mess.ownerId?.name || '-'}</td>
                     <td>${mess.location || '-'}</td>
-                    <td>${mess.overallRating ? Number(mess.overallRating).toFixed(1) : '0.0'} ⭐</td>
+                    <td>${mess.overallRating ? Number(mess.overallRating).toFixed(1) : '0.0'}</td>
                     <td>${mess.totalReviews || 0}</td>
                     <td><span class="status-badge status-active">Active</span></td>
                 </tr>
@@ -927,7 +927,7 @@
                 <tr>
                     <td>${review.userId?.name || '-'}</td>
                     <td>${review.messId?.name || '-'}</td>
-                    <td>${'⭐'.repeat(review.rating || 0)}</td>
+                    <td>${'*'.repeat(review.rating || 0)}</td>
                     <td>${((review.review || '-').substring(0, 50))}${(review.review || '').length > 50 ? '...' : ''}</td>
                     <td>${formatDate(review.createdAt)}</td>
                     <td><button class="btn-view-details" onclick="openReviewModal(${index})">View</button></td>
@@ -977,7 +977,7 @@
 
             document.getElementById('modalReviewUser').textContent = selectedReview.userId?.name || '-';
             document.getElementById('modalReviewMess').textContent = selectedReview.messId?.name || '-';
-            document.getElementById('modalReviewRating').textContent = '⭐'.repeat(selectedReview.rating || 0);
+            document.getElementById('modalReviewRating').textContent = '*'.repeat(selectedReview.rating || 0);
             document.getElementById('modalReviewDate').textContent = formatDateTime(selectedReview.createdAt);
             document.getElementById('modalReviewComment').textContent = selectedReview.review || '-';
 
@@ -1045,7 +1045,7 @@
                 document.getElementById('lastUpdated').textContent = formatDateTime(lastUpdated);
 
                 // Load statistics
-                const statsResponse = await fetch('http://localhost:5000/api/admin/stats', {
+                const statsResponse = await fetch(`${API_BASE_URL}/admin/stats`, {
                     headers: getAdminHeaders()
                 });
                 
@@ -1058,7 +1058,7 @@
                 }
 
                 // Load login details
-                const loginDetailsResponse = await fetch('http://localhost:5000/api/admin/login-details', {
+                const loginDetailsResponse = await fetch(`${API_BASE_URL}/admin/login-details`, {
                     headers: getAdminHeaders()
                 });
 
@@ -1068,7 +1068,7 @@
                 }
 
                 // Load users
-                const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
+                const usersResponse = await fetch(`${API_BASE_URL}/admin/users`, {
                     headers: getAdminHeaders()
                 });
 
@@ -1078,7 +1078,7 @@
                 }
 
                 // Load messes
-                const messesResponse = await fetch('http://localhost:5000/api/admin/messes', {
+                const messesResponse = await fetch(`${API_BASE_URL}/admin/messes`, {
                     headers: getAdminHeaders()
                 });
 
@@ -1088,7 +1088,7 @@
                 }
 
                 // Load reviews
-                const reviewsResponse = await fetch('http://localhost:5000/api/admin/reviews', {
+                const reviewsResponse = await fetch(`${API_BASE_URL}/admin/reviews`, {
                     headers: getAdminHeaders()
                 });
 
@@ -1098,7 +1098,7 @@
                 }
 
                 // Load analytics
-                const analyticsResponse = await fetch('http://localhost:5000/api/admin/analytics', {
+                const analyticsResponse = await fetch(`${API_BASE_URL}/admin/analytics`, {
                     headers: getAdminHeaders()
                 });
 

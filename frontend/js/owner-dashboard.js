@@ -15,31 +15,43 @@ async function loadOwnerData() {
         const user = await getCurrentUser();
         document.getElementById('ownerName').textContent = user.name;
 
+        console.log('loadOwnerData - Current user ID:', user.id);
+        console.log('loadOwnerData - Fetching mess from:', `${API_BASE_URL}/messes/owner/my-mess`);
+        console.log('loadOwnerData - Auth headers:', getAuthHeaders());
+
         // Check if owner has a mess
         const messResponse = await fetch(`${API_BASE_URL}/messes/owner/my-mess`, {
             headers: getAuthHeaders()
         });
 
+        console.log('loadOwnerData - Response status:', messResponse.status);
+
         if (messResponse.ok) {
             const messData = await messResponse.json();
+            console.log('loadOwnerData - Mess data:', messData);
+            
             if (messData.success && messData.data) {
                 ownerMess = messData.data;
+                console.log('loadOwnerData - Mess found:', ownerMess._id);
                 document.getElementById('noListing').style.display = 'none';
                 document.getElementById('listingDetails').style.display = 'block';
                 displayListingDetails();
                 populateSettingsForm();
             } else {
                 // No mess yet
+                console.log('loadOwnerData - No mess data in response');
                 document.getElementById('noListing').style.display = 'block';
                 document.getElementById('listingDetails').style.display = 'none';
             }
         } else {
-            // No mess yet
+            // No mess yet or error
+            const errorData = await messResponse.json();
+            console.warn('loadOwnerData - Failed to fetch mess:', messResponse.status, errorData);
             document.getElementById('noListing').style.display = 'block';
-                document.getElementById('listingDetails').style.display = 'none';
+            document.getElementById('listingDetails').style.display = 'none';
         }
     } catch (error) {
-        console.error('Error loading owner data:', error);
+        console.error('loadOwnerData - Error:', error);
         document.getElementById('noListing').style.display = 'block';
     }
 }
@@ -72,13 +84,13 @@ function displayListingDetails() {
     container.innerHTML = `
         <div>
             <h3>${ownerMess.name}</h3>
-            <p><strong>📍 Location:</strong> ${ownerMess.location}</p>
-            <p><strong>💰 Price:</strong> ₹${ownerMess.monthlyPrice}/month</p>
-            <p><strong>🍽️ Food Type:</strong> ${ownerMess.foodType}</p>
-            <p><strong>📞 Phone:</strong> ${ownerMess.phoneNumber || 'Not set'}</p>
-            <p><strong>🌐 Website:</strong> ${ownerMess.website || 'Not set'}</p>
-            <p><strong>📝 Description:</strong> ${ownerMess.description || 'Not set'}</p>
-            <h4 style="margin-top: 15px;">🍽️ Meal Schedule</h4>
+            <p><strong>Location:</strong> ${ownerMess.location}</p>
+            <p><strong>Price:</strong> Rs ${ownerMess.monthlyPrice}/month</p>
+            <p><strong>Food Type:</strong> ${ownerMess.foodType}</p>
+            <p><strong>Phone:</strong> ${ownerMess.phoneNumber || 'Not set'}</p>
+            <p><strong>Website:</strong> ${ownerMess.website || 'Not set'}</p>
+            <p><strong>Description:</strong> ${ownerMess.description || 'Not set'}</p>
+            <h4 style="margin-top: 15px;">Meal Schedule</h4>
             <table class="schedule-table">
                 <thead>
                     <tr>
@@ -145,19 +157,19 @@ function setupEventListeners() {
             const messDescription = document.getElementById('messDescription').value.trim();
             
             if (!messName || !messAddress || !messLocation || !messContact || !messPrice || !messFoodType || !messDescription) {
-                alert('❌ Please fill in all required fields (marked with *)');
+                alert('Please fill in all required fields (marked with *)');
                 return;
             }
             
             // Validate phone number (10 digits)
             if (!/^\d{10}$/.test(messContact.replace(/\D/g, ''))) {
-                alert('❌ Please enter a valid 10-digit phone number');
+                alert('Please enter a valid 10-digit phone number');
                 return;
             }
             
             // Validate price is positive
             if (parseInt(messPrice) <= 0) {
-                alert('❌ Monthly price must be greater than 0');
+                alert('Monthly price must be greater than 0');
                 return;
             }
             
@@ -199,7 +211,7 @@ function setupEventListeners() {
                 // Show loading state
                 const submitBtn = messForm.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
-                submitBtn.textContent = '⏳ Saving...';
+                submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
 
                 const response = await fetch(`${API_BASE_URL}/messes`, {
@@ -211,11 +223,11 @@ function setupEventListeners() {
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('✅ Mess details added successfully!');
+                    alert('Mess details added successfully!');
                     messForm.reset();
                     location.reload();
                 } else {
-                    alert('❌ Error: ' + (data.message || 'Failed to add mess'));
+                    alert('Error: ' + (data.message || 'Failed to add mess'));
                 }
                 
                 // Restore button state
@@ -223,11 +235,11 @@ function setupEventListeners() {
                 submitBtn.disabled = false;
             } catch (error) {
                 console.error('Error adding mess:', error);
-                alert('❌ Error adding mess: ' + error.message);
+                alert('Error adding mess: ' + error.message);
                 
                 // Restore button state
                 const submitBtn = messForm.querySelector('button[type="submit"]');
-                submitBtn.textContent = '💾 Save Mess Details';
+                submitBtn.textContent = 'Save Mess Details';
                 submitBtn.disabled = false;
             }
         });
@@ -243,7 +255,7 @@ function setupEventListeners() {
         
         // Validate phone if provided
         if (settingsPhone && !/^\d{10}$/.test(settingsPhone.replace(/\D/g, ''))) {
-            alert('❌ Please enter a valid 10-digit phone number');
+            alert('Please enter a valid 10-digit phone number');
             return;
         }
         
@@ -280,7 +292,7 @@ function setupEventListeners() {
             // Show loading state
             const submitBtn = document.querySelector('#settingsForm button[type="submit"]');
             const originalText = submitBtn.textContent;
-            submitBtn.textContent = '⏳ Updating...';
+            submitBtn.textContent = 'Updating...';
             submitBtn.disabled = true;
 
             const response = await fetch(`${API_BASE_URL}/messes/${ownerMess._id}`, {
@@ -290,23 +302,23 @@ function setupEventListeners() {
             });
 
             if (response.ok) {
-                alert('✅ Listing updated successfully!');
+                alert('Listing updated successfully!');
                 await loadOwnerData();
                 
                 // Restore button state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             } else {
-                alert('❌ Error updating listing');
+                alert('Error updating listing');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
         } catch (error) {
-            alert('❌ Error updating listing: ' + error.message);
+            alert('Error updating listing: ' + error.message);
             
             // Restore button state
             const submitBtn = document.querySelector('#settingsForm button[type="submit"]');
-            submitBtn.textContent = '💾 Save Changes';
+            submitBtn.textContent = 'Save Changes';
             submitBtn.disabled = false;
         }
     });

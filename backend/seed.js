@@ -8,7 +8,10 @@ require('dotenv').config();
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://Testuser:Naseem996@cluster0.zewmraj.mongodb.net/Hostel_Mess_Finder');
+        if (!process.env.MONGO_URI) {
+            throw new Error('MONGO_URI is required for seeding.');
+        }
+        await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB connected');
     } catch (error) {
         console.error('MongoDB connection error:', error);
@@ -18,58 +21,94 @@ const connectDB = async () => {
 
 const sampleMesses = [
     {
-        name: "Golden Fork Mess",
-        location: "Near DU Campus, Delhi",
+        name: "Sri Sai Hostel Mess",
+        location: "Near Engineering Campus, Delhi",
         monthlyPrice: 2500,
         foodType: "Both",
-        description: "Best mess for North Indian food. Clean kitchen and hygienic preparation.",
+        description: "Best mess for homemade food. Clean kitchen and hygienic preparation.",
         phoneNumber: "9876543210",
-        website: "https://example.com/golden-fork"
+        website: "https://example.com/sri-sai-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '7:30 AM - 9:30 AM', description: 'Idli, Dosa, Poha with Chutney & Sambar' },
+            lunch: { available: true, time: '12:30 PM - 2:30 PM', description: 'Rice, Roti, Dal, Paneer/Chicken gravy, Salad' },
+            dinner: { available: true, time: '7:30 PM - 9:30 PM', description: 'Roti, Rice, Seasonal Veg, Egg/Fish Curry' },
+            snacks: { available: true, time: '4:30 PM - 5:30 PM', description: 'Tea, Coffee, Samosa or Biscuits' }
+        }
     },
     {
-        name: "South Spice Kitchen",
-        location: "Greater Kailash, Delhi",
+        name: "VVIT Boys Mess",
+        location: "Greater Campus Area",
         monthlyPrice: 3000,
         foodType: "Veg",
         description: "Authentic South Indian vegetarian cuisine. Fresh vegetables daily.",
         phoneNumber: "9876543211",
-        website: "https://example.com/south-spice"
+        website: "https://example.com/vvit-boys-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '7:00 AM - 9:00 AM', description: 'Upma, Vada, Pongal, Tea/Coffee' },
+            lunch: { available: true, time: '12:00 PM - 2:00 PM', description: 'South Indian Thali (Unlimited Rice, Sambar, Rasam, Curd)' },
+            dinner: { available: true, time: '7:30 PM - 9:30 PM', description: 'Chapati, Fried Rice, Mixed Veg Curry' },
+            snacks: { available: false, time: '-', description: '-' }
+        }
     },
     {
-        name: "Hostel Heaven",
+        name: "Annapurna Girls Mess",
         location: "Rohini, Delhi",
         monthlyPrice: 2000,
         foodType: "Both",
-        description: "Budget-friendly mess with quality food. Great hygiene standards.",
+        description: "Budget-friendly mess with quality food for girls. Great hygiene standards.",
         phoneNumber: "9876543212",
-        website: "https://example.com/hostel-heaven"
+        website: "https://example.com/annapurna-girls-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '8:00 AM - 10:00 AM', description: 'Aloo Paratha, Bread Toast, Milk/Tea' },
+            lunch: { available: true, time: '1:00 PM - 3:00 PM', description: 'Rajma Chawal, Roti, Curd, Salad' },
+            dinner: { available: true, time: '8:00 PM - 10:00 PM', description: 'Paneer Butter Masala, Butter Naan, Gulab Jamun' },
+            snacks: { available: true, time: '5:00 PM - 6:00 PM', description: 'Maggi, Pakoras, Tea' }
+        }
     },
     {
-        name: "Taste of Home",
+        name: "Andhra Spice Mess",
         location: "Dwarka, Delhi",
         monthlyPrice: 2800,
         foodType: "Non-Veg",
-        description: "Home-style cooking with chicken, mutton, and fish specialties.",
+        description: "Spicy home-style cooking with chicken, mutton, and fish specialties.",
         phoneNumber: "9876543213",
-        website: "https://example.com/taste-of-home"
+        website: "https://example.com/andhra-spice-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '7:00 AM - 9:30 AM', description: 'Pesarattu, Onion Dosa, Filter Coffee' },
+            lunch: { available: true, time: '12:30 PM - 3:00 PM', description: 'Andhra Meals with Spicy Chicken/Mutton Roast' },
+            dinner: { available: true, time: '7:30 PM - 10:00 PM', description: 'Hyderabadi Chicken Biryani (Wed/Sun), Bagara Rice' },
+            snacks: { available: false, time: '-', description: '-' }
+        }
     },
     {
-        name: "Green Leaf Meals",
+        name: "Saraswati Students Mess",
         location: "Noida, UP",
         monthlyPrice: 2200,
         foodType: "Veg",
-        description: "Organic vegetables, no preservatives. Healthy eating for students.",
+        description: "Pure vegetarian meals. Healthy eating for students.",
         phoneNumber: "9876543214",
-        website: "https://example.com/green-leaf"
+        website: "https://example.com/saraswati-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '7:30 AM - 9:00 AM', description: 'Puri Sabji, Sprouts, Fruit Salad' },
+            lunch: { available: true, time: '12:30 PM - 2:00 PM', description: 'Simple Thali: Rice, Dal Tadka, Gobi Aloo, Roti' },
+            dinner: { available: true, time: '7:30 PM - 9:00 PM', description: 'Khichdi, Kadhi Pakora, Papad, Pickle' },
+            snacks: { available: true, time: '4:00 PM - 5:00 PM', description: 'Roasted Makhana, Green Tea' }
+        }
     },
     {
-        name: "Royal Biryani House",
+        name: "Balaji Deluxe Mess",
         location: "Sector 63, Noida",
         monthlyPrice: 3500,
         foodType: "Non-Veg",
-        description: "Premium biryani and Mughlai cuisine. Weekend special events.",
+        description: "Premium meals and occasional biryani. Weekend special events.",
         phoneNumber: "9876543215",
-        website: "https://example.com/royal-biryani"
+        website: "https://example.com/balaji-deluxe-mess",
+        foodSchedule: {
+            breakfast: { available: true, time: '8:00 AM - 10:30 AM', description: 'Chole Bhature, Omelette, Fresh Juice' },
+            lunch: { available: true, time: '1:00 PM - 3:30 PM', description: 'Deluxe Thali (2 Non-Veg, 2 Veg items, Sweets)' },
+            dinner: { available: true, time: '8:00 PM - 10:30 PM', description: 'Tandoori Chicken/Fish Tikka, Butter Roti' },
+            snacks: { available: true, time: '5:00 PM - 6:30 PM', description: 'Chicken Sandwich, French Fries, Milkshake' }
+        }
     }
 ];
 
@@ -77,29 +116,54 @@ const seedDatabase = async () => {
     try {
         await connectDB();
         
-        // Clear existing messes
+        // Clear existing messes and users to avoid clutter or duplicates during seed
         await Mess.deleteMany({});
         console.log('Cleared existing messes');
         
         // Create admin user
-        const adminExists = await User.findOne({ email: 'admin123@gmail.com', role: 'admin' });
+        const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin123@gmail.com';
+        const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+        let adminExists = await User.findOne({ email: adminEmail, role: 'admin' });
         if (!adminExists) {
-            const adminUser = new User({
+            adminExists = new User({
                 name: 'Admin User',
-                email: 'admin123@gmail.com',
+                email: adminEmail,
                 phone: '9999999999',
-                password: 'admin123',
+                password: adminPassword,
                 role: 'admin'
             });
-            await adminUser.save();
-            console.log('✓ Admin user created: admin123@gmail.com / admin123');
+            await adminExists.save();
+            console.log(`Admin user created: ${adminEmail}`);
         } else {
             console.log('Admin user already exists');
         }
         
+        // Create dummy hostel owner
+        const ownerEmail = 'owner1@example.com';
+        let ownerUser = await User.findOne({ email: ownerEmail, role: 'hostel_owner' });
+        if (!ownerUser) {
+            ownerUser = new User({
+                name: 'Ramesh (Owner)',
+                email: ownerEmail,
+                phone: '8888888888',
+                password: 'password123',
+                role: 'hostel_owner'
+            });
+            await ownerUser.save();
+            console.log(`Dummy owner created: ${ownerEmail}`);
+        } else {
+            console.log('Dummy owner already exists');
+        }
+
+        // Attach ownerId to messes
+        const messesWithOwner = sampleMesses.map(mess => ({
+            ...mess,
+            ownerId: ownerUser._id
+        }));
+
         // Insert sample messes
-        const createdMesses = await Mess.insertMany(sampleMesses);
-        console.log(`Created ${createdMesses.length} sample messes`);
+        const createdMesses = await Mess.insertMany(messesWithOwner);
+        console.log(`Created ${createdMesses.length} sample messes with owner references`);
         
         process.exit(0);
     } catch (error) {

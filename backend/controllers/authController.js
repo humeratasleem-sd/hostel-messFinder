@@ -3,7 +3,9 @@ const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this_in_production', {
+  const secret = process.env.JWT_SECRET || 'fallback_secret_for_development';
+
+  return jwt.sign({ id }, secret, {
     expiresIn: '30d'
   });
 };
@@ -62,23 +64,26 @@ exports.register = async (req, res) => {
     });
 
     const token = generateToken(user._id);
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      college: user.college,
+      role: user.role
+    };
 
     res.status(201).json({
       success: true,
+      message: 'Registration successful',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        college: user.college,
-        role: user.role
-      }
+      user: userData,
+      data: { user: userData }
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error in registration',
-      error: error.message
+      message: 'Error in registration: ' + error.message
     });
   }
 };
@@ -107,17 +112,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Validate user type matches
-    if (userType) {
-      const expectedRole = userType === 'owner' ? 'hostel_owner' : userType;
-      if (user.role !== expectedRole) {
-        return res.status(403).json({
-          success: false,
-          message: `This account is not registered as ${userType}. Please select the correct login type.`
-        });
-      }
-    }
-
+    // Login doesn't require userType validation from frontend anymore
+    // Role is automatically returned to frontend from user object
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({
@@ -132,23 +128,26 @@ exports.login = async (req, res) => {
     });
 
     const token = generateToken(user._id);
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      college: user.college,
+      role: user.role
+    };
 
     res.status(200).json({
       success: true,
+      message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        college: user.college,
-        role: user.role
-      }
+      user: userData,
+      data: { user: userData }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error in login',
-      error: error.message
+      message: 'Error in login: ' + error.message
     });
   }
 };
@@ -158,7 +157,7 @@ exports.login = async (req, res) => {
 // @access  Public
 exports.adminLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     // Validation
     if (!email || !password) {
@@ -168,8 +167,13 @@ exports.adminLogin = async (req, res) => {
       });
     }
 
+    // Normalize email completely
+    email = email.trim().toLowerCase();
+    console.log(`[Admin Login Attempt] Email: ${email}`);
+
     // Check if admin user exists
     const admin = await User.findOne({ email, role: 'admin' }).select('+password');
+    console.log(`[Admin Login Check] Found admin in DB:`, !!admin);
     
     if (!admin) {
       return res.status(401).json({
@@ -180,6 +184,8 @@ exports.adminLogin = async (req, res) => {
 
     // Verify password
     const isMatch = await admin.matchPassword(password);
+    console.log(`[Admin Login Check] Password match:`, isMatch);
+    
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -193,11 +199,13 @@ exports.adminLogin = async (req, res) => {
     });
 
     // Generate token for admin
-    const token = jwt.sign({ 
+    const secret = process.env.JWT_SECRET || 'fallback_secret_for_development';
+
+    const token = jwt.sign({
       id: admin._id,
       isAdmin: true, 
       email: admin.email 
-    }, process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this_in_production', {
+    }, secret, {
       expiresIn: '30d'
     });
 
@@ -212,10 +220,10 @@ exports.adminLogin = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Admin login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error in admin login',
-      error: error.message
+      message: 'Error in admin login: ' + error.message
     });
   }
 };
@@ -249,8 +257,7 @@ exports.getCurrentUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching user',
-      error: error.message
+      message: 'Error fetching user'
     });
   }
 };

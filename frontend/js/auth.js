@@ -2,8 +2,26 @@
 // AUTHENTICATION & NAVIGATION
 // ===================================
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Function to determine the API base URL dynamically
+const getApiBaseUrl = () => {
+    // If running from file protocol (e.g. double clicking the HTML file)
+    if (window.location.protocol === 'file:') {
+        return 'http://localhost:5000/api';
+    }
+    
+    // If running on a different port like Live Server (5500, 3000, etc.)
+    if (window.location.port && window.location.port !== '5000') {
+        return `http://${window.location.hostname}:5000/api`;
+    }
+    
+    // Default fallback: assume the backend is on the same host and port 5000, 
+    // or it's served by the backend itself (relative path is safer but /api might conflict if not handled, 
+    // so using explicit localhost or relative depending on deployment).
+    // For local dev where backend is always on 5000:
+    return `http://${window.location.hostname || 'localhost'}:5000/api`;
+};
 
+const API_BASE_URL = getApiBaseUrl();
 function applyTheme(theme) {
     document.body.classList.toggle('dark', theme === 'dark');
 }
@@ -34,19 +52,19 @@ function ensureThemeToggle() {
     if (!navLinks || document.getElementById('themeToggle')) return;
 
     const toggleItem = document.createElement('li');
-    toggleItem.innerHTML = '<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">🌙</button>';
+    toggleItem.innerHTML = '<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">Dark</button>';
     navLinks.appendChild(toggleItem);
 
     const themeToggle = document.getElementById('themeToggle');
     const storedTheme = localStorage.getItem('theme') || 'light';
     applyTheme(storedTheme);
-    themeToggle.textContent = storedTheme === 'dark' ? '☀️' : '🌙';
+    themeToggle.textContent = storedTheme === 'dark' ? 'Light' : 'Dark';
 
     themeToggle.addEventListener('click', () => {
         const nextTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
         localStorage.setItem('theme', nextTheme);
         applyTheme(nextTheme);
-        themeToggle.textContent = nextTheme === 'dark' ? '☀️' : '🌙';
+        themeToggle.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
     });
 }
 

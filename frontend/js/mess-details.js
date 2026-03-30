@@ -174,19 +174,17 @@ async function loadReviews() {
 }
 
 function createReviewHTML(review) {
-    const quantity = review.quantity ? `<span class="review-quantity">📦 ${review.quantity.charAt(0).toUpperCase() + review.quantity.slice(1)}</span>` : '';
+    const quantity = review.quantity ? `<span class="review-quantity">Qty: ${review.quantity.charAt(0).toUpperCase() + review.quantity.slice(1)}</span>` : '';
     const foodImage = review.foodImage ? `<img src="${review.foodImage}" alt="Food" class="review-food-image" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 10px;">` : '';
     const voiceNote = review.voiceNote ? `
-        <audio controls style="width: 100%; margin-top: 10px;">
-            <source src="${review.voiceNote}">
-        </audio>
+        <audio controls src="${review.voiceNote}" style="width: 100%; margin-top: 10px;"></audio>
     ` : '';
     const categoryRatings = `
         <div class="review-subratings" style="margin: 10px 0; color: #5b6470; font-size: 0.92rem; line-height: 1.55;">
-            <div>😊 Staff Behavior: <strong>${review.staffBehaviorRating || '-'}/5</strong></div>
-            <div>💰 Value for Money: <strong>${review.valueForMoneyRating || '-'}/5</strong></div>
-            <div>🪑 Dining Area Cleanliness: <strong>${review.diningAreaCleanlinessRating || '-'}/5</strong></div>
-            <div>⏱️ Timeliness: <strong>${review.timelinessRating || '-'}/5</strong></div>
+            <div>Staff Behavior: <strong>${review.staffBehaviorRating || '-'}/5</strong></div>
+            <div>Value for Money: <strong>${review.valueForMoneyRating || '-'}/5</strong></div>
+            <div>Dining Area Cleanliness: <strong>${review.diningAreaCleanlinessRating || '-'}/5</strong></div>
+            <div>Timeliness: <strong>${review.timelinessRating || '-'}/5</strong></div>
         </div>
     `;
     
@@ -195,7 +193,7 @@ function createReviewHTML(review) {
             <div class="review-header">
                 <div>
                     <span class="review-user">${review.userId.name}</span>
-                    <span class="verified-badge">✓ Verified Student</span>
+                    <span class="verified-badge">Verified Student</span>
                 </div>
                 <span class="review-date">${new Date(review.createdAt).toLocaleDateString()}</span>
             </div>
@@ -573,7 +571,7 @@ async function confirmJoinNow() {
         // Show loading state
         const confirmBtn = document.getElementById('confirmJoinButton');
         const originalText = confirmBtn.textContent;
-        confirmBtn.textContent = '⏳ Joining...';
+        confirmBtn.textContent = 'Joining...';
         confirmBtn.disabled = true;
 
         const token = localStorage.getItem('token');
@@ -597,7 +595,7 @@ async function confirmJoinNow() {
             document.getElementById('joinConfirmationModal').style.display = 'none';
 
             // Show success alert
-            alert(`✅ Successfully joined ${currentOwnerDetails.messName}!\n\nOwner Contact:\n📱 ${currentOwnerDetails.ownerPhone}\n📧 ${currentOwnerDetails.ownerEmail}`);
+            alert(`Successfully joined ${currentOwnerDetails.messName}!\n\nOwner Contact:\nPhone: ${currentOwnerDetails.ownerPhone}\nEmail: ${currentOwnerDetails.ownerEmail}`);
             
             // Show owner details card
             document.getElementById('ownerDetailsCard').style.display = 'block';
@@ -617,13 +615,13 @@ async function confirmJoinNow() {
             confirmBtn.textContent = originalText;
             confirmBtn.disabled = false;
         } else {
-            alert('❌ Error: ' + (data.message || 'Could not join mess'));
+            alert('Error: ' + (data.message || 'Could not join mess'));
             confirmBtn.textContent = originalText;
             confirmBtn.disabled = false;
         }
     } catch (error) {
         console.error('Error joining mess:', error);
-        alert('❌ Error joining mess. Please try again.');
+        alert('Error joining mess. Please try again.');
         
         // Restore button state
         const confirmBtn = document.getElementById('confirmJoinButton');
@@ -633,7 +631,7 @@ async function confirmJoinNow() {
 }
 
 async function leaveMess() {
-    if (!confirm('⚠️ Are you sure you want to leave this mess? You can join again anytime.')) {
+    if (!confirm('Are you sure you want to leave this mess? You can join again anytime.')) {
         return;
     }
 
@@ -641,7 +639,7 @@ async function leaveMess() {
         // Show loading state
         const leaveBtn = document.getElementById('leaveButton');
         const originalText = leaveBtn.textContent;
-        leaveBtn.textContent = '⏳ Leaving...';
+        leaveBtn.textContent = 'Leaving...';
         leaveBtn.disabled = true;
 
         const token = localStorage.getItem('token');
@@ -662,7 +660,7 @@ async function leaveMess() {
             localStorage.setItem('user', JSON.stringify(user));
 
             // Show success message
-            alert('✅ You have left the mess');
+            alert('You have left the mess');
             
             // Hide owner details and show join button
             document.getElementById('ownerDetailsCard').style.display = 'none';
@@ -673,17 +671,17 @@ async function leaveMess() {
             leaveBtn.textContent = originalText;
             leaveBtn.disabled = false;
         } else {
-            alert('❌ Error: ' + (data.message || 'Could not leave mess'));
+            alert('Error: ' + (data.message || 'Could not leave mess'));
             leaveBtn.textContent = originalText;
             leaveBtn.disabled = false;
         }
     } catch (error) {
         console.error('Error leaving mess:', error);
-        alert('❌ Error leaving mess. Please try again.');
+        alert('Error leaving mess. Please try again.');
         
         // Restore button state
         const leaveBtn = document.getElementById('leaveButton');
-        leaveBtn.textContent = '❌ Leave Mess';
+        leaveBtn.textContent = 'Leave Mess';
         leaveBtn.disabled = false;
     }
 }

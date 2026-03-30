@@ -11,7 +11,7 @@ npm install
 Create `.env` file in root directory:
 ```
 PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hostel-mess-finder
+MONGO_URI=mongodb+srv://username:password@cluster0.qu5rimu.mongodb.net/hostel-mess-finder
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 NODE_ENV=development
 ```
@@ -59,7 +59,7 @@ Server runs on `http://localhost:5000`
 | Variable | Description | Example |
 |----------|-------------|---------|
 | PORT | Server port | 5000 |
-| MONGODB_URI | MongoDB connection string | mongodb+srv://... |
+| MONGO_URI | MongoDB connection string | mongodb+srv://... |
 | JWT_SECRET | JWT signing secret | your_secret_key |
 | NODE_ENV | Environment | development/production |
 
@@ -154,7 +154,7 @@ npm run dev
 ### MongoDB Local Setup (Optional)
 ```bash
 # Instead of MongoDB Atlas, run locally
-MONGODB_URI=mongodb://localhost:27017/hostel-mess-finder npm run dev
+MONGO_URI=mongodb://localhost:27017/hostel-mess-finder npm run dev
 ```
 
 ## Troubleshooting

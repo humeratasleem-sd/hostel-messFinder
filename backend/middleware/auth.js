@@ -9,6 +9,7 @@ const protect = (req, res, next) => {
   }
 
   if (!token) {
+    console.warn('protect - No token provided');
     return res.status(401).json({
       success: false,
       message: 'Not authorized to access this route'
@@ -16,10 +17,13 @@ const protect = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this_in_production');
+    const secret = process.env.JWT_SECRET || 'fallback_secret_for_development';
+    const decoded = jwt.verify(token, secret);
+    console.log('protect - Token decoded, userId:', decoded.id);
     req.userId = decoded.id;
     next();
   } catch (error) {
+    console.error('protect - JWT verification failed:', error.message);
     return res.status(401).json({
       success: false,
       message: 'Not authorized to access this route'

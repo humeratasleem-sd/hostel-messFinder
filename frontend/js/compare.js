@@ -82,21 +82,21 @@ function getMessDetailsHTML(mess) {
                 <div class="rating-item">
                     <strong>Food Quality:</strong>
                     <div class="stars">
-                        ${'⭐'.repeat(Math.round(mess.foodQualityRating))}
+                        ${'*'.repeat(Math.round(mess.foodQualityRating))}
                         <span>${mess.foodQualityRating.toFixed(1)}/5</span>
                     </div>
                 </div>
                 <div class="rating-item">
                     <strong>Hygiene:</strong>
                     <div class="stars">
-                        ${'⭐'.repeat(Math.round(mess.hygieneRating))}
+                        ${'*'.repeat(Math.round(mess.hygieneRating))}
                         <span>${mess.hygieneRating.toFixed(1)}/5</span>
                     </div>
                 </div>
                 <div class="rating-item">
                     <strong>Overall:</strong>
                     <div class="stars">
-                        ${'⭐'.repeat(Math.round(mess.overallRating))}
+                        ${'*'.repeat(Math.round(mess.overallRating))}
                         <span>${mess.overallRating.toFixed(1)}/5</span>
                     </div>
                 </div>

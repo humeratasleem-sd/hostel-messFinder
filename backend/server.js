@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: './.env' });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -14,11 +14,14 @@ const reviewRoutes = require('./routes/review');
 const app = express();
 
 // Connect to database
-connectDatabase();
+connectDatabase().catch((error) => {
+  console.error(error.message);
+  process.exit(1);
+});
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173', 'http://localhost:8000', 'http://127.0.0.1:8000','http://127.0.0.1:5500'],
+  origin: true, // Allow all origins dynamically
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -47,26 +50,40 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// 404 handler
+// API 404 handler
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found'
+  });
+});
+
+// Frontend fallback
 app.use('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  if (req.method !== 'GET') {
+    return res.status(404).json({
+      success: false,
+      message: 'Route not found'
+    });
+  }
+
+  return res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error(err.message || err);
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+    message: err.message || 'Internal server error'
   });
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`\n✓ Server running on http://localhost:${PORT}`);
-  console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}\n`);
+  console.log(`\nServer running on http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
 module.exports = app;

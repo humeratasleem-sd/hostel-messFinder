@@ -12,7 +12,7 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <h1>🍽️ Hostel Mess Finder</h1>
+                <h1>Hostel Mess Finder</h1>
             </div>
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
@@ -27,7 +27,7 @@
     <div class="auth-container">
         <div class="auth-form-wrapper" style="grid-template-columns: 1fr;">
             <div class="auth-form">
-                <h2>🔐 Admin Portal</h2>
+                <h2>Admin Portal</h2>
                 <p class="subtitle">Administrator Access Only</p>
 
                 <form id="adminLoginForm">
@@ -54,6 +54,7 @@
         </div>
     </div>
 
+    <script src="js/auth.js"></script>
     <script>
         // Admin login handler
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
@@ -72,7 +73,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:5000/api/auth/admin-login', {
+                const response = await fetch(`${API_BASE_URL}/auth/admin-login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -86,6 +87,8 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.admin));
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('admin', JSON.stringify(data.admin));
                     localStorage.setItem('userType', 'admin');
@@ -103,7 +106,7 @@
         });
 
         function showError(message) {
-            document.getElementById('errorMessage').innerHTML = '❌ ' + message;
+            document.getElementById('errorMessage').innerHTML = message;
         }
 
         // Check if already logged in

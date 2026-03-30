@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>🐛 Debugging Hostel Mess Finder</h1>
+    <h1>Debugging Hostel Mess Finder</h1>
     
     <div class="debug-box">
         <h2>1. Backend Status</h2>
@@ -35,20 +35,19 @@
         <div id="messesData">Loading...</div>
     </div>
 
+    <script src="js/auth.js"></script>
     <script>
-        const API_BASE_URL = 'http://localhost:5000/api';
-
         async function debug() {
             // 1. Check backend
             try {
-                const health = await fetch('http://localhost:5000/api/health');
+                const health = await fetch(`${API_BASE_URL}/health`);
                 const healthData = await health.json();
                 document.getElementById('backendStatus').innerHTML = 
-                    '<span class="success">✓ Backend is running</span><br>' +
+                    '<span class="success">Backend is running</span><br>' +
                     '<pre>' + JSON.stringify(healthData, null, 2) + '</pre>';
             } catch (e) {
                 document.getElementById('backendStatus').innerHTML = 
-                    '<span class="error">✗ Backend not responding: ' + e.message + '</span>';
+                    '<span class="error">Backend not responding: ' + e.message + '</span>';
             }
 
             // 2. Config
@@ -60,12 +59,12 @@
                 const response = await fetch(API_BASE_URL + '/messes');
                 const data = await response.json();
                 document.getElementById('apiResponse').innerHTML = 
-                    '<span class="success">✓ API responding</span><br>' +
+                    '<span class="success">API responding</span><br>' +
                     '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
                 
                 // 4. Show messes
                 if (data.data && data.data.length > 0) {
-                    let html = '<span class="success">✓ ' + data.data.length + ' messes found</span><br>';
+                    let html = '<span class="success">' + data.data.length + ' messes found</span><br>';
                     data.data.forEach(mess => {
                         html += '<div style="border: 1px solid #ccc; padding: 10px; margin: 5px 0;">' +
                                 '<strong>' + mess.name + '</strong><br>' +
@@ -76,13 +75,13 @@
                     document.getElementById('messesData').innerHTML = html;
                 } else {
                     document.getElementById('messesData').innerHTML = 
-                        '<span class="error">✗ No messes found in database</span>';
+                        '<span class="error">No messes found in database</span>';
                 }
             } catch (e) {
                 document.getElementById('apiResponse').innerHTML = 
-                    '<span class="error">✗ API error: ' + e.message + '</span>';
+                    '<span class="error">API error: ' + e.message + '</span>';
                 document.getElementById('messesData').innerHTML = 
-                    '<span class="error">✗ Cannot load messes</span>';
+                    '<span class="error">Cannot load messes</span>';
             }
         }
 

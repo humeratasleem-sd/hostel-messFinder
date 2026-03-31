@@ -1,24 +1,11 @@
-// ===================================
-// AUTHENTICATION & NAVIGATION
-// ===================================
-
-// Function to determine the API base URL dynamically
 const getApiBaseUrl = () => {
-    // If running from file protocol (e.g. double clicking the HTML file)
-    if (window.location.protocol === 'file:') {
-        return 'http://localhost:5000/api';
-    }
-    
-    // If running on a different port like Live Server (5500, 3000, etc.)
-    if (window.location.port && window.location.port !== '5000') {
-        return `http://${window.location.hostname}:5000/api`;
-    }
-    
-    // Default fallback: assume the backend is on the same host and port 5000, 
-    // or it's served by the backend itself (relative path is safer but /api might conflict if not handled, 
-    // so using explicit localhost or relative depending on deployment).
-    // For local dev where backend is always on 5000:
-    return `http://${window.location.hostname || 'localhost'}:5000/api`;
+    const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+
+    return isLocal
+        ? "http://localhost:5000/api"   // Local development
+        : `${window.location.origin}/api`; // Production (Render)
 };
 
 const API_BASE_URL = getApiBaseUrl();

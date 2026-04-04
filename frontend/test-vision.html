@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision API Test - Human Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --glow: rgba(99, 102, 241, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            box-shadow: 0 8px 30px var(--glow);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--card-border);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-area .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .upload-area .label {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .upload-area .hint {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 12px;
+            border: 2px solid var(--card-border);
+            object-fit: contain;
+        }
+
+        .preview-container .filename {
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: white;
+            box-shadow: 0 4px 15px var(--glow);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 14px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .result.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .result.success .result-header { color: var(--success); }
+        .result.error .result-header { color: var(--error); }
+
+        .result-body {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        .result-body .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .result-body .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="header-icon">👁️</div>
+                <h1>Human Detection</h1>
+                <p class="subtitle">Upload an image to detect if it contains a human</p>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <span class="icon">📷</span>
+                <p class="label">Drop an image here or click to browse</p>
+                <p class="hint">JPEG, PNG, GIF, WebP — Max 10MB</p>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImg" src="" alt="Preview">
+                <div class="filename" id="fileName"></div>
+            </div>
+
+            <button class="btn btn-primary" id="detectBtn" disabled>
+                🔍 Detect Human
+            </button>
+
+            <div class="result" id="resultBox">
+                <div class="result-header" id="resultHeader"></div>
+                <div class="result-body" id="resultBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImg = document.getElementById('previewImg');
+        const fileName = document.getElementById('fileName');
+        const detectBtn = document.getElementById('detectBtn');
+        const resultBox = document.getElementById('resultBox');
+        const resultHeader = document.getElementById('resultHeader');
+        const resultBody = document.getElementById('resultBody');
+
+        let selectedFile = null;
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                imageInput.files = e.dataTransfer.files;
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+                fileName.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            };
+            reader.readAsDataURL(file);
+            detectBtn.disabled = false;
+            resultBox.style.display = 'none';
+        }
+
+        detectBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            detectBtn.disabled = true;
+            detectBtn.innerHTML = '<span class="spinner"></span> Analyzing...';
+            resultBox.style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+
+                const response = await fetch(`${API_BASE}/api/vision/detect-human`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                resultBox.style.display = 'block';
+
+                if (data.success && data.containsHuman) {
+                    resultBox.className = 'result success';
+                    resultHeader.innerHTML = '✅ Human Detected!';
+                    
+                    let bodyHtml = `
+                        <div class="detail-row">
+                            <span>Status</span>
+                            <span style="color: #10b981; font-weight: 600;">Human Found</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Faces Detected</span>
+                            <span>${data.details.faceCount || 0}</span>
+                        </div>
+                    `;
+
+                    if (data.details.labels && data.details.labels.length) {
+                        bodyHtml += `<div style="margin-top: 10px; font-weight: 500; color: #e2e8f0;">Detected Labels:</div>`;
+                        bodyHtml += '<div class="tags">';
+                        data.details.labels.forEach(l => {
+                            bodyHtml += `<span class="tag">${l}</span>`;
+                        });
+                        bodyHtml += '</div>';
+                    }
+
+                    resultBody.innerHTML = bodyHtml;
+                } else {
+                    resultBox.className = 'result error';
+                    resultHeader.innerHTML = '❌ No Human Detected';
+                    
+                    let bodyHtml = `
+                        <div class="detail-row">
+                            <span>Status</span>
+                            <span style="color: #ef4444; font-weight: 600;">No Human</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Message</span>
+                            <span>${data.message || 'Unknown'}</span>
+                        </div>
+                    `;
+
+                    if (data.details && data.details.labels && data.details.labels.length) {
+                        bodyHtml += `<div style="margin-top: 10px; font-weight: 500; color: #e2e8f0;">Detected Labels:</div>`;
+                        bodyHtml += '<div class="tags">';
+                        data.details.labels.forEach(l => {
+                            bodyHtml += `<span class="tag">${l}</span>`;
+                        });
+                        bodyHtml += '</div>';
+                    }
+
+                    resultBody.innerHTML = bodyHtml;
+                }
+            } catch (error) {
+                resultBox.style.display = 'block';
+                resultBox.className = 'result error';
+                resultHeader.innerHTML = '⚠️ Error';
+                resultBody.innerHTML = `
+                    <div class="detail-row">
+                        <span>Error</span>
+                        <span>${error.message}</span>
+                    </div>
+                `;
+            } finally {
+                detectBtn.disabled = false;
+                detectBtn.innerHTML = '🔍 Detect Human';
+            }
+        });
+    </script>
+</body>
+</html>

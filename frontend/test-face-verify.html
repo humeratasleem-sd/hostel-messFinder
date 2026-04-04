@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Verification — Strict Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: #0a0e1a;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 2rem;
+    }
+
+    .upload-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px dashed rgba(99, 102, 241, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-card:hover {
+      border-color: rgba(99, 102, 241, 0.6);
+      background: rgba(99, 102, 241, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .upload-card.has-image {
+      border-style: solid;
+      border-color: rgba(99, 102, 241, 0.5);
+      padding: 0.5rem;
+    }
+
+    .upload-card .label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #a5b4fc;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .upload-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.6;
+    }
+
+    .upload-card .hint {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .upload-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .upload-card .filename {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-top: 0.5rem;
+      word-break: break-all;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .verify-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: none;
+      color: white;
+      padding: 0.9rem 3rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    .verify-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    .verify-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .verify-btn.loading {
+      position: relative;
+      color: transparent;
+    }
+
+    .verify-btn.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* ── Result Panel ── */
+    .result-panel {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      display: none;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-panel.visible {
+      display: block;
+    }
+
+    .result-header {
+      padding: 1.25rem 1.5rem;
+      font-weight: 700;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .result-header.match {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.05));
+      color: #4ade80;
+      border-bottom: 1px solid rgba(34, 197, 94, 0.15);
+    }
+
+    .result-header.not-match {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.05));
+      color: #f87171;
+      border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .result-body {
+      padding: 1.5rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .metric-card .metric-label {
+      font-size: 0.7rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .metric-card .metric-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-card .metric-status {
+      font-size: 0.7rem;
+      margin-top: 0.3rem;
+      font-weight: 600;
+    }
+
+    .metric-card .metric-status.pass { color: #4ade80; }
+    .metric-card .metric-status.fail { color: #f87171; }
+
+    .json-output {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #a5b4fc;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 10px;
+      padding: 1rem;
+      color: #fca5a5;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 600px) {
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔒 Face Verification</h1>
+  <p class="subtitle">Strict biometric comparison with quality enforcement</p>
+  <span class="badge">Strict Mode — Zero False Positive Tolerance</span>
+
+  <div class="upload-grid">
+    <!-- Owner Image -->
+    <div class="upload-card" id="ownerCard" onclick="document.getElementById('ownerInput').click()">
+      <div class="label">👤 Owner Image</div>
+      <div class="icon" id="ownerIcon">📷</div>
+      <div class="hint" id="ownerHint">Click to upload</div>
+      <img id="ownerPreview" style="display:none" alt="Owner preview">
+      <div class="filename" id="ownerFilename"></div>
+      <input type="file" id="ownerInput" accept="image/*">
+    </div>
+
+    <!-- Student Image -->
+    <div class="upload-card" id="studentCard" onclick="document.getElementById('studentInput').click()">
+      <div class="label">🎓 Student Image</div>
+      <div class="icon" id="studentIcon">📷</div>
+      <div class="hint" id="studentHint">Click to upload</div>
+      <img id="studentPreview" style="display:none" alt="Student preview">
+      <div class="filename" id="studentFilename"></div>
+      <input type="file" id="studentInput" accept="image/*">
+    </div>
+  </div>
+
+  <button class="verify-btn" id="verifyBtn" disabled onclick="verify()">
+    Verify Faces
+  </button>
+
+  <!-- Result Panel -->
+  <div class="result-panel" id="resultPanel">
+    <div class="result-header" id="resultHeader"></div>
+    <div class="result-body">
+      <div class="error-msg" id="errorMsg" style="display:none"></div>
+      <div class="metrics-grid" id="metricsGrid"></div>
+      <div class="section-label">Raw Response</div>
+      <div class="json-output" id="jsonOutput"></div>
+    </div>
+  </div>
+
+  <script>
+    let ownerFile = null;
+    let studentFile = null;
+
+    // API base URL — auto-detect from current page or default
+    const API_BASE = window.location.origin.includes('localhost')
+      ? window.location.origin
+      : 'http://localhost:5000';
+
+    function setupUpload(inputId, previewId, iconId, hintId, filenameId, cardId, fileSetter) {
+      const input = document.getElementById(inputId);
+      input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        fileSetter(file);
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const preview = document.getElementById(previewId);
+          preview.src = ev.target.result;
+          preview.style.display = 'block';
+          document.getElementById(iconId).style.display = 'none';
+          document.getElementById(hintId).style.display = 'none';
+          document.getElementById(filenameId).textContent = file.name;
+          document.getElementById(cardId).classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+
+        updateVerifyButton();
+      });
+    }
+
+    setupUpload('ownerInput', 'ownerPreview', 'ownerIcon', 'ownerHint', 'ownerFilename', 'ownerCard',
+      (f) => { ownerFile = f; });
+    setupUpload('studentInput', 'studentPreview', 'studentIcon', 'studentHint', 'studentFilename', 'studentCard',
+      (f) => { studentFile = f; });
+
+    function updateVerifyButton() {
+      document.getElementById('verifyBtn').disabled = !(ownerFile && studentFile);
+    }
+
+    async function verify() {
+      if (!ownerFile || !studentFile) return;
+
+      const btn = document.getElementById('verifyBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      const panel = document.getElementById('resultPanel');
+      panel.classList.remove('visible');
+
+      try {
+        const formData = new FormData();
+        formData.append('ownerImage', ownerFile);
+        formData.append('studentImage', studentFile);
+
+        const response = await fetch(`${API_BASE}/api/vision/verify-face`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        displayResult(data);
+
+      } catch (err) {
+        displayResult({
+          success: false,
+          result: 'Not Match',
+          distance: null,
+          similarity: null,
+          confidence: 'Low',
+          error: `Network error: ${err.message}`,
+        });
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function displayResult(data) {
+      const panel = document.getElementById('resultPanel');
+      const header = document.getElementById('resultHeader');
+      const metricsGrid = document.getElementById('metricsGrid');
+      const jsonOutput = document.getElementById('jsonOutput');
+      const errorMsg = document.getElementById('errorMsg');
+
+      const isMatch = data.result === 'Match';
+
+      // Header
+      header.className = `result-header ${isMatch ? 'match' : 'not-match'}`;
+      header.textContent = isMatch
+        ? '✅ MATCH — Identity Verified'
+        : '❌ NOT MATCH — Identity Rejected';
+
+      // Error
+      if (data.error) {
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = data.error;
+      } else {
+        errorMsg.style.display = 'none';
+      }
+
+      // Metrics
+      const distancePass = data.distance !== null && data.distance < 0.45;
+      const similarityPass = data.similarity !== null && data.similarity > 0.75;
+
+      metricsGrid.innerHTML = `
+        <div class="metric-card">
+          <div class="metric-label">Euclidean Distance</div>
+          <div class="metric-value" style="color: ${distancePass ? '#4ade80' : '#f87171'}">${data.distance !== null ? data.distance : '—'}</div>
+          <div class="metric-status ${distancePass ? 'pass' : 'fail'}">${data.distance !== null ? (distancePass ? '✓ < 0.45' : '✗ ≥ 0.45') : 'N/A'}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cosine Similarity</div>
+          <div class="metric-value" style="color: ${similarityPass ? '#4ade80' : '#f87171'}">${data.similarity !== null ? data.similarity : '—'}</div>
+          <div class="metric-status ${similarityPass ? 'pass' : 'fail'}">${data.similarity !== null ? (similarityPass ? '✓ > 0.75' : '✗ ≤ 0.75') : 'N/A'}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Confidence</div>
+          <div class="metric-value" style="color: ${data.confidence === 'High' ? '#4ade80' : '#fbbf24'}">${data.confidence || '—'}</div>
+          <div class="metric-status" style="color: #94a3b8">${data.confidence === 'High' ? 'Extremely confident' : 'Below threshold'}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Processing Time</div>
+          <div class="metric-value" style="color: #a5b4fc">${data.processingTimeMs ? data.processingTimeMs + 'ms' : '—'}</div>
+          <div class="metric-status" style="color: #94a3b8">Server-side</div>
+        </div>
+      `;
+
+      // JSON
+      jsonOutput.textContent = JSON.stringify(data, null, 2);
+
+      panel.classList.add('visible');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+</html>

@@ -67,7 +67,11 @@ function updateNavigation() {
 
     // Clear and rebuild navbar
     navLinks.innerHTML = `<li><a href="index.html" ${path.includes('index.html') || path === '/' ? 'class="active"' : ''}>Home</a></li>`;
-    navLinks.innerHTML += `<li><a href="browse.html" ${path.includes('browse.html') ? 'class="active"' : ''}>Browse Messes</a></li>`;
+
+    // Show "Browse Messes" only for students, not owners/admin
+    if (userType === 'student') {
+        navLinks.innerHTML += `<li><a href="browse.html" ${path.includes('browse.html') ? 'class="active"' : ''}>Browse Messes</a></li>`;
+    }
 
     if (token) {
         const dashboardPath = getDashboardPath(userType);

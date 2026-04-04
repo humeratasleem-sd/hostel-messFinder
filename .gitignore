@@ -80,3 +80,11 @@ npm-debug.log
 
 # yarn cache
 .yarn/
+
+# Google Cloud credentials (KEEP PRIVATE!)
+backend/config/hostel-mess-ai-*.json
+*.json.bak
+
+# Uploaded files
+backend/uploads/
+uploads/

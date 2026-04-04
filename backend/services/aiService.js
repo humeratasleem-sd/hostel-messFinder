@@ -1,15 +1,138 @@
 /**
- * Mock AI Service for Face Verification
- * In a real-world scenario, you would integrate:
- * - AWS Rekognition
- * - Azure Face API
- * - Face++
- * - Python-based OpenCV / face_recognition script
+ * AI Service for Face Verification & Detection
+ * Uses Google Cloud Vision API for human detection
  */
 
+const vision = require('@google-cloud/vision');
+const path = require('path');
+const fs = require('fs');
+
+// Create Vision API client with service account key
+const keyFilePath = path.join(__dirname, '..', 'config', 'hostel-mess-ai-6f67d9e5fff7.json');
+
+let visionClient;
+try {
+  visionClient = new vision.ImageAnnotatorClient({
+    keyFilename: keyFilePath,
+  });
+  console.log('✅ Google Cloud Vision API client initialized successfully');
+} catch (err) {
+  console.error('❌ Failed to initialize Vision API client:', err.message);
+  console.error('   Make sure the JSON key file exists at:', keyFilePath);
+}
+
+/**
+ * Detect human in an image using Google Cloud Vision API
+ * Works with both file paths and base64-encoded images
+ */
+exports.detectHumanFace = async (imageInput) => {
+  console.log('--- AI FACE DETECTION (Google Vision) INITIATED ---');
+
+  if (!imageInput) {
+    return { hasFace: false, message: 'No photo provided' };
+  }
+
+  if (!visionClient) {
+    return { hasFace: false, message: 'Vision API client not available. Check your credentials.' };
+  }
+
+  try {
+    let request;
+
+    // Check if input is a file path or base64 data
+    if (imageInput.startsWith('data:image')) {
+      // Base64 encoded image — extract the raw base64 content
+      const base64Data = imageInput.replace(/^data:image\/\w+;base64,/, '');
+      request = {
+        image: { content: base64Data },
+        features: [
+          { type: 'LABEL_DETECTION', maxResults: 15 },
+          { type: 'FACE_DETECTION', maxResults: 5 },
+        ],
+      };
+    } else if (fs.existsSync(imageInput)) {
+      // Local file path
+      const imageBuffer = fs.readFileSync(imageInput);
+      request = {
+        image: { content: imageBuffer.toString('base64') },
+        features: [
+          { type: 'LABEL_DETECTION', maxResults: 15 },
+          { type: 'FACE_DETECTION', maxResults: 5 },
+        ],
+      };
+    } else {
+      // Treat as URL
+      request = {
+        image: { source: { imageUri: imageInput } },
+        features: [
+          { type: 'LABEL_DETECTION', maxResults: 15 },
+          { type: 'FACE_DETECTION', maxResults: 5 },
+        ],
+      };
+    }
+
+    const [result] = await visionClient.annotateImage(request);
+
+    // Check label annotations for person/human keywords
+    const labels = result.labelAnnotations || [];
+    const labelDescriptions = labels.map(l => l.description.toLowerCase());
+    console.log('Vision API Labels:', labelDescriptions.join(', '));
+
+    const humanKeywords = ['person', 'human', 'people', 'man', 'woman', 'boy', 'girl', 'face', 'selfie', 'portrait', 'head'];
+    const hasPersonLabel = labelDescriptions.some(desc =>
+      humanKeywords.some(keyword => desc.includes(keyword))
+    );
+
+    // Check face detection annotations
+    const faces = result.faceAnnotations || [];
+    const hasFaceDetection = faces.length > 0;
+
+    console.log(`Label-based person: ${hasPersonLabel}, Face detection: ${hasFaceDetection} (${faces.length} faces)`);
+
+    const hasFace = hasPersonLabel || hasFaceDetection;
+
+    if (hasFace) {
+      console.log('✅ Human face detected successfully via Google Vision API');
+      return {
+        hasFace: true,
+        message: 'Human face detected',
+        labels: labelDescriptions,
+        faceCount: faces.length,
+      };
+    } else {
+      console.log('❌ No human detected in the image');
+      return {
+        hasFace: false,
+        message: 'No human face detected. Please upload a clear photo of a person.',
+        labels: labelDescriptions,
+        faceCount: 0,
+      };
+    }
+  } catch (error) {
+    console.error('Vision API Error:', error.message);
+    return {
+      hasFace: false,
+      message: `Vision API error: ${error.message}`,
+    };
+  }
+};
+
+/**
+ * Detect human in an uploaded file (used by the /api/vision/detect-human endpoint)
+ */
+exports.detectHumanFromFile = async (filePath) => {
+  console.log('--- DETECT HUMAN FROM FILE ---');
+  return exports.detectHumanFace(filePath);
+};
+
+/**
+ * Real AI Face Verification (compare two faces)
+ * Uses face-api.js for 128-d embedding extraction + strict comparison
+ */
+const { verifyFaces } = require('./faceVerificationService');
+
 exports.verifyFace = async (studentPhotoBase64, ownerUploadedPhotoBase64) => {
-  console.log('--- AI FACE VERIFICATION INITIATED ---');
-  // Check if photos exist
+  console.log('--- AI FACE VERIFICATION (STRICT) INITIATED ---');
   if (!studentPhotoBase64 || !ownerUploadedPhotoBase64) {
     return {
       match: false,
@@ -18,71 +141,30 @@ exports.verifyFace = async (studentPhotoBase64, ownerUploadedPhotoBase64) => {
     };
   }
 
-  // MOCK LOGIC: We simulate a delay to mimic an external API call
-  console.log('Connecting to Face AI Server...');
-  await new Promise(resolve => setTimeout(resolve, 800));
+  try {
+    const result = await verifyFaces(ownerUploadedPhotoBase64, studentPhotoBase64);
 
-  // If the base64 strings match exactly, it's a 100% match.
-  // Otherwise, we randomly generate a score for demo purposes.
-  // For safety in this demo, since users might upload the exact same image for testing,
-  // we check exact match, otherwise we provide a high chance of success or fail.
-  
-  let score;
-  let match;
-
-  if (studentPhotoBase64 === ownerUploadedPhotoBase64) {
-    score = 100; // Perfect match
-    match = true;
-    console.log(`Face match score: ${score}% (Exact image match)`);
-  } else {
-    // Generate a random score between 60 and 99
-    score = Math.floor(Math.random() * (99 - 60 + 1) + 60);
-    match = score >= 80;
-    console.log(`Face match score: ${score}% (Simulated processing)`);
+    return {
+      match: result.result === 'Match',
+      score: result.similarity ? Math.round(result.similarity * 100) : 0,
+      message: result.result === 'Match'
+        ? `Faces matched (distance: ${result.distance}, similarity: ${result.similarity})`
+        : result.error || `Faces did not match (distance: ${result.distance}, similarity: ${result.similarity})`,
+      details: {
+        result: result.result,
+        distance: result.distance,
+        similarity: result.similarity,
+        confidence: result.confidence,
+      }
+    };
+  } catch (error) {
+    console.error('Face verification error:', error.message);
+    return {
+      match: false,
+      score: 0,
+      message: `Face verification failed: ${error.message}`
+    };
   }
-
-  if (match) {
-    console.log('AI verification passed.');
-  } else {
-    console.log('AI verification failed: Score below 80%.');
-  }
-
-  return {
-    match,
-    score,
-    message: match ? "Faces matched successfully" : "Face match score below threshold"
-  };
-};
-
-/**;   
- * Mock AI Face Detection
- * Only allows human faces, rejects screenshots/objects.
- */
-exports.detectHumanFace = async (photoBase64) => {
-  console.log('--- AI FACE DETECTION INITIATED ---');
-  if (!photoBase64) return { hasFace: false, message: 'No photo provided' };
-
-  // MOCK LOGIC: Simulate detection delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // For this demo:
-  // We'll reject very small images (likely icons) 
-  // and images that are clearly not photos (simulated by checking string length or patterns)
-  // In reality, this would use face-api.js or similar
-  
-  if (photoBase64.length < 5000) {
-    return { hasFace: false, message: 'Image too small or low quality to be a valid profile photo.' };
-  }
-
-  // Simulated failure for specific test case (e.g. if the user uploads a tiny placeholder)
-  const isMockFailure = photoBase64.includes('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='); // 1x1 pixel
-  
-  if (isMockFailure) {
-    return { hasFace: false, message: 'Only human face images are allowed.' };
-  }
-
-  console.log('Human face detected successfully.');
-  return { hasFace: true, message: 'Face detected' };
 };
 
 /**
@@ -92,11 +174,10 @@ exports.analyzeSentiment = async (text) => {
   console.log('--- AI SENTIMENT ANALYSIS INITIATED ---');
   if (!text) return { score: 0, label: 'neutral' };
 
-  // MOCK LOGIC: Simple keyword based sentiment for demo
   const positiveWords = ['good', 'great', 'excellent', 'amazing', 'delicious', 'clean', 'friendly', 'best', 'love', 'nice'];
   const negativeWords = ['bad', 'poor', 'terrible', 'worst', 'dirty', 'rude', 'unhygienic', 'expensive', 'hate', 'slow'];
 
-  let score = 50; // Neutral start
+  let score = 50;
   const words = text.toLowerCase().split(/\s+/);
 
   words.forEach(word => {
@@ -120,11 +201,10 @@ exports.detectFakeReview = async (text, userId, messId) => {
   console.log('--- AI FAKE REVIEW DETECTION INITIATED ---');
   if (!text) return { isFake: false, confidence: 0 };
 
-  // MOCK LOGIC: Check for spammy patterns
   const spamPatterns = [
-    /https?:\/\//i, // Links
-    /\b(buy|cheap|discount|offer|click here|subscribe)\b/i, // Marketing words
-    /(.)\1{4,}/, // Repeated characters like "aaaaa"
+    /https?:\/\//i,
+    /\b(buy|cheap|discount|offer|click here|subscribe)\b/i,
+    /(.)\\1{4,}/,
   ];
 
   let spamScore = 0;
@@ -132,10 +212,8 @@ exports.detectFakeReview = async (text, userId, messId) => {
     if (pattern.test(text)) spamScore += 30;
   });
 
-  // Very short reviews are suspicious
   if (text.length < 10) spamScore += 20;
 
-  // Duplicate content check (Mock: if review is exactly same as a common spam template)
   const commonSpamTemplates = [
     "this is a great mess",
     "i love the food here",
@@ -146,11 +224,10 @@ exports.detectFakeReview = async (text, userId, messId) => {
     spamScore += 50;
   }
 
-  // Repetitive text
   const words = text.toLowerCase().split(/\s+/);
   const uniqueWords = new Set(words);
   if (words.length > 5 && uniqueWords.size / words.length < 0.4) {
-    spamScore += 40; // High repetition
+    spamScore += 40;
   }
 
   const isFake = spamScore > 50;
@@ -168,8 +245,6 @@ exports.detectFakeReview = async (text, userId, messId) => {
  */
 exports.flagSuspiciousBehavior = async (user) => {
   console.log('--- AI BEHAVIOR ANALYSIS INITIATED ---');
-  // MOCK LOGIC: Check login patterns or review frequency
-  // For demo, we just return low risk unless it's a specific test case
   return {
     isSuspicious: false,
     riskScore: 10,

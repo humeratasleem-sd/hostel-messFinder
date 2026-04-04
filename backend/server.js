@@ -11,6 +11,14 @@ const adminRoutes = require('./routes/admin');
 const reviewRoutes = require('./routes/review');
 const studentRoutes = require('./routes/studentRoutes');
 const messRoutes = require('./routes/mess');
+const visionRoutes = require('./routes/vision');
+
+// Ensure uploads directory exists
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Initialize app
 const app = express();
@@ -56,6 +64,7 @@ app.use('/api/messes', messRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/students', studentRoutes);
 app.use('/api/students', studentRoutes); // Support both for safety
+app.use('/api/vision', visionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
